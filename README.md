@@ -11,3 +11,9 @@ Run the tests.
 ```
 $> doit test
 ```
+
+Start Jupyter notebook.
+
+```
+$> doit notebook
+```

@@ -11,3 +11,9 @@ def task_test():
             'name': kind,
             'actions': [action]
         }
+
+def task_notebook():
+    return {
+        'actions': [['jupyter', 'notebook', '--notebook-dir=notebooks']],
+        'verbosity': 2
+    }
