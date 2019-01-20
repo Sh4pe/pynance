@@ -11,7 +11,7 @@ def test_suite():
 
 def run_all_unit_tests():
     test_runner = unittest.TextTestRunner()
-    test_runner.run(test_suite())
+    return test_runner.run(test_suite())
 
 if __name__ == "__main__":
     run_all_unit_tests()
