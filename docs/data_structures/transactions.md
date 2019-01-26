@@ -25,3 +25,26 @@ data sources.
 | DKB  | Credit card, webpage       | Umsatz abgerechnet und nicht im Saldo enthalten, Wertstellung, Belegdatum, Beschreibung, Betrag (EUR), Ursprünglicher Betrag  |
 | Consorsbank  | Checking account, webpage | Buchung, Valuta, Sender / Empfänger, IBAN / Konto-Nr., BIC / BLZ, Buchungstext, Verwendungszweck, Betrag in EUR |
 | MoneyMoney  | Banking application | Datum, Wertstellung, Kategorie, Name, Verwendungszweck, Konto, Bank, Betrag, Währung  |
+
+## Columns
+
+These are the columns contained in the main data structure
+of the transactions.
+
+| Column | Description |
+|--------|-------------|
+| `time` | Time when the transaction happened, format: unix timestamp |
+| `sender` | String containing the name of the sender of the transaction |
+| `sender_account` | String containing the account information of the sender |
+| `receiver` | String containing the name of the receiver of the transaction |
+| `receiver_account` | String containing the account information of the receiver |
+| `text` | Text of the transaction |
+| `amount` | Amount of money that has been transferred |
+| `currency` | Currency of the transaction like "EUR" or "USD" |
+
+
+**Notes**:
+
+* The unix timestamp `time` is universal since it can be used to quickly calculate differences and since it's timezone is well defined (i.e. UTC)
+* `sender_account` and `receiver_account` should contain everything required to uniquely identify the accounts involved. For transactions inside Europe, the IBAN should be sufficient.
+* The `currency` of the transaction raw data should probably be consistent, i.e. all transactions should be stored in the same currency.
