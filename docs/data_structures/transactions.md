@@ -34,9 +34,7 @@ of the transactions.
 | Column | Description |
 |--------|-------------|
 | `date` | Date when the transaction happened |
-| `sender` | String containing the name of the sender of the transaction |
 | `sender_account` | String containing the account information of the sender |
-| `receiver` | String containing the name of the receiver of the transaction |
 | `receiver_account` | String containing the account information of the receiver |
 | `text` | Text of the transaction |
 | `amount` | Amount of money that has been transferred |
@@ -46,5 +44,5 @@ of the transactions.
 **Notes**:
 
 * The `date` is the date that is given by the bank that exports data. No information on timezones is stored, since we just go with what the bank gives us.
-* `sender_account` and `receiver_account` should contain everything required to uniquely identify the accounts involved. For transactions inside Europe, the IBAN should be sufficient.
+* `sender_account` and `receiver_account` should contain everything required to uniquely identify the name of the sender and the accounts involved. For transactions inside Europe, the name and IBAN should be sufficient.
 * The `currency` of the transaction raw data should probably be consistent, i.e. all transactions should be stored in the same currency.
