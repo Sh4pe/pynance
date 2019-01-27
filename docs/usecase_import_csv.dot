@@ -1,0 +1,8 @@
+digraph {
+db -> lib [label="old data"]
+lib -> lib [label="update data"]
+user -> frontend [label = path]
+frontend -> lib [label = text]
+lib -> db [label = "new data"]
+
+}

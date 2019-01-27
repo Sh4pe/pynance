@@ -1,0 +1,7 @@
+digraph{
+    user -> frontend [label="filepath"]
+    frontend -> lib [label = "data format"]
+    lib -> frontend [label = "formatted data"]
+    frontend -> user [label = "image / text file"]
+    frontend -> frontend [label=visualization]
+}
