@@ -39,6 +39,8 @@ of the transactions.
 | `text` | Text of the transaction |
 | `amount` | Amount of money that has been transferred |
 | `currency` | Currency of the transaction like "EUR" or "USD" |
+| `category` | String containing the category of the transaction. May be empty. |
+| `tags` | List of strings containing tags of the transaction. May be empty |
 
 
 **Notes**:
