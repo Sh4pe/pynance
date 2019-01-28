@@ -2,3 +2,4 @@ __pycache__
 *.db
 .ipynb_checkpoints
 .vscode/settings.json
+docs/graphs/png/*.png
