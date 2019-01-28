@@ -1,0 +1,34 @@
+digraph hierarchy {
+size="5,5"
+node[   shape=record,
+        style=filled,
+        fillcolor=gray95]
+edge[dir=back, arrowtail=none]
+
+
+ps[label = "{ProgramState|
+                all_transactions\l
+                filtered_transactions\l|
+                + setup()\l
+                + add(dataframe)\l
+                + apply(filter)\l
+                + categorize(row, category)\l
+                + store()\l
+                }"]
+imp[label = "{TextImporter|| + read(file) : dataframe}"]
+tfd[label = "{TextfileDescription|
+                columns\l
+                dialect\l|
+                }"]
+db[label = "{DatabaseInterface|
+                db_credentials\l|
+                + load_all_transactions() : dataframe\l
+                + store_transactions(dataframe)\l
+                + load_iban_lookup() : dataframe\l}"]
+
+
+ps -> db
+imp -> tfd
+
+}
+
