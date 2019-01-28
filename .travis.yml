@@ -3,6 +3,7 @@ python:
   - "3.6"
   - "2.7"
 install:
-  - pip install doit
+  # The latest version of doit supporting Python 2 is 0.29.0
+  - test $(python -c 'import sys;print(sys.version_info[0])') -eq 2 && pip install 'doit==0.29.0' || pip install doit
 script:
   - doit test
