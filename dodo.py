@@ -15,7 +15,7 @@ def task_test():
         }
 
 def task_graphviz():
-    graph_dir = "docs\\graphs\\"
+    graph_dir = os.path.join(*["docs","graphs"])
     graph_dot_files = glob.glob(os.path.join(graph_dir, "*.dot"))
 
     for graph_dot_file in graph_dot_files:
