@@ -1,6 +1,8 @@
 from __future__ import print_function
 import unittests
 import sys
+import glob
+import os.path
 
 def task_test():
     def integration_test_action():
@@ -11,6 +13,20 @@ def task_test():
         yield {
             'name': kind,
             'actions': [action]
+        }
+
+def task_graphviz():
+    graph_dir = os.path.join(*["docs","graphs"])
+    graph_dot_files = glob.glob(os.path.join(graph_dir, "*.dot"))
+
+    for graph_dot_file in graph_dot_files:
+        base = os.path.basename(graph_dot_file)
+        graph_name = os.path.splitext(base)[0]
+        graph_image_file = os.path.join(graph_dir, "png", graph_name+".png") 
+
+        yield {
+            'name': graph_name, 
+            'actions': ['dot -Tpng %s -o %s' % (graph_dot_file, graph_image_file)]
         }
 
 def task_notebook():
