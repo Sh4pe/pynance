@@ -1,33 +1,33 @@
 digraph hierarchy {
-size="5,5"
+size="10,5"
 node[   shape=record,
         style=filled,
         fillcolor=gray95]
 edge[dir=back, arrowtail=none]
 
 
-ps[label = "{ProgramState|
-                all_transactions\l
-                filtered_transactions\l|
-                + setup()\l
-                + add(dataframe)\l
-                + apply(filter)\l
-                + categorize(row, category)\l
-                + store()\l
+ps[label = "{Transactions|
+                all_transactions\l|
+                + load() : void\l
+                + add_transactions(dataframe) : dataframe\l
+                + update(dataframe) : void\l
                 }"]
-imp[label = "{TextImporter|| + read(file) : dataframe}"]
-tfd[label = "{TextfileDescription|
-                columns\l
-                dialect\l|
-                }"]
+ct[label = "{ICategorizer|| 
+                + categorize(dataframe) : dataframe\l
+            }"]
+imp[label = "{CsvImporter|| + read(file, CsvFileDescription) : dataframe}"]
+tfd[label = "{CsvFileDescription|
+                dict: column_mapping\l
+                csv.Dialect: csv_dialect\l|
+                format_column(series) : series}"]
 db[label = "{DatabaseInterface|
-                db_credentials\l|
-                + load_all_transactions() : dataframe\l
-                + store_transactions(dataframe)\l
-                + load_iban_lookup() : dataframe\l}"]
+                string: db_credentials\l|
+                + load() : dataframe\l
+                + store(dataframe)\l}"]
 
 
 ps -> db
+ps -> ct
 imp -> tfd
 
 }
