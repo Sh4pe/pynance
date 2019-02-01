@@ -12,6 +12,7 @@ class DummyTestCase(unittest.TestCase):
 
 
 def test_suite():
+    "returns test suite"
     suite = unittest.TestSuite()
     suite.addTest(DummyTestCase('test_my_dummy_function'))
     return suite
