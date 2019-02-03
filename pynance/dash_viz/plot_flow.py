@@ -23,54 +23,71 @@ app.layout = html.Div([
     html.Table([
         html.Tr([
             html.Td(dcc.Dropdown(
-                        id='csvtype-selection',
-                        options=[{'label': 'DKB Cash', 'value': 'DKBCash'},
-                                {'label': 'DKB Visa', 'value': 'DKBVisa'}
-                                ],
-                        style={'width': 200},
-                        placeholder = "Select csv type",
-                        value=None,
-                        searchable=False,
-                        clearable=False)),
+                id='csvtype-selection',
+                options=[{'label': 'DKB Cash', 'value': 'DKBCash'},
+                         {'label': 'DKB Visa', 'value': 'DKBVisa'}
+                         ],
+                style={'width': 200},
+                placeholder="Select csv type",
+                value=None,
+                searchable=False,
+                clearable=False)),
             html.Td(dcc.Upload(
-                        id='uploader',
-                        children=html.Div([
-                            'Drag and Drop or ',
-                            html.A('Select Files')
-                        ]),
-                        style={
-                            'width': '300px',
-                            'height': '60px',
-                            'lineHeight': '60px',
-                            'borderWidth': '1px',
-                            'borderStyle': 'dashed',
-                            'borderRadius': '5px',
-                            'textAlign': 'center',
-                            'margin': '10px'
-                        },
-                        multiple=False,
+                id='uploader',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ]),
+                style={
+                    'width': '300px',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin': '10px'
+                },
+                multiple=False,
 
-                    ))            
+            ))
         ]),
     ]),
     dcc.Store(id='csvtype',
               storage_type='session'),
-    
+
     dcc.Graph(
         figure=go.Figure(
             data=[],
-            ),
+        ),
         style={'height': 500},
         id='my-graph'
     )
 ])
 
+
 def parse_contents(contents, csvtype_str):
+    """
+    Format the undecoded content of a csv file to a dataframe
+
+    Params:
+    -------
+    contents: byte-like
+        undecoded content of a file to decode
+    csvtype_str: str
+        name of a supported csv type, should be name of the attribute of
+        SupportedCsvTypes
+
+    Returns:
+    --------
+    DataFrame
+        Data from the file, formatted as defined by CSV-Type
+    """
     csvtype_desc = csvtype_string2description(csvtype_str)
 
-    content_type, content_string = contents.split(',')
+    content_string = contents.split(',')[1]
     decoded = base64.b64decode(content_string)
-    
+
     encoding = csvtype_desc.encoding
 
     try:
@@ -78,10 +95,27 @@ def parse_contents(contents, csvtype_str):
     except:
         raise IOError("Could not load file.")
 
+
 @app.callback(Output('my-graph', 'figure'),
               [Input('uploader', 'contents')],
               [State('csvtype', 'data')])
 def update_output(content, csvtype_str):
+    """
+    Visualizes the raw data content of a file as a time-amount bar graph
+
+    Params:
+    -------
+    content: byte-like
+        undecoded csv file content
+    csvtype_str: str
+        name of a supported csv type, should be name of the attribute of
+        SupportedCsvTypes
+
+    Returns:
+    --------
+    Figure:
+        Bar chart figure, with time on x and amount on y
+    """
     if content is not None:
         df = parse_contents(content, csvtype_str)
 
@@ -110,18 +144,24 @@ def update_output(content, csvtype_str):
         )
 
         return fig
-    else: return go.Figure(data=[])
+    else:
+        return go.Figure(data=[])
 
 
 @app.callback(Output("uploader", "disabled"),
-            [Input("csvtype-selection", "value")])
+              [Input("csvtype-selection", "value")])
 def onselect_csvtype(dropdown_value):
+    """disable the uploader if no csvtype is selected"""
     return dropdown_value is None
 
+
 @app.callback(Output("csvtype", "data"),
-            [Input("csvtype-selection", "value")])
+              [Input("csvtype-selection", "value")])
 def update_csvtype_store(dropdown_value):
+    """write the value of the csvtype selection to storage"""
     return dropdown_value
 
+
 def csvtype_string2description(csvtype_string):
+    """get the right csv type object from the list of supported its name"""
     return getattr(SupportedCsvTypes, csvtype_string)
