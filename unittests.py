@@ -41,7 +41,5 @@ def run_all_unit_tests():
 
 if __name__ == "__main__":
     import sys
-    if run_all_unit_tests():
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    all_tests_ok = run_all_unit_tests()
+    sys.exit(not all_tests_ok)
