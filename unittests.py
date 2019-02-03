@@ -8,18 +8,21 @@ import pynance.textimporter_test
 def doc_test_suite():
     "Returns the testsuite doctests for all modules. Please don't forget to add new modules here."
 
-    # Every module that doctests should be run on needs to present in the scope of the function.
-    # And they need to be added below.
+    import pkgutil
+    import importlib
     import pynance
-    import pynance.dummy
-    import pynance.textimporter
 
-    # ... here:
-    doctest_suite = doctest.DocTestSuite(pynance.textimporter_test)
-    doctest_suite.addTest(doctest.DocTestSuite(pynance.dummy_test))
-    doctest_suite.addTest(doctest.DocTestSuite(pynance.dummy))
-    doctest_suite.addTest(doctest.DocTestSuite(pynance.textimporter))
+    doctest_suite = unittest.TestSuite()
+    def add_doctests_for_module(package):
+        "Recursively walks `package` and adds doctests for all submodules and subpackages to `doctest_suite`"
+        for _, name, is_pkg in pkgutil.walk_packages(package.__path__):
+            sub_module = importlib.import_module('{}.{}'.format(package.__name__, name))
+            if is_pkg:
+                add_doctests_for_module(sub_module)
+            else:
+                doctest_suite.addTest(doctest.DocTestSuite(sub_module))
 
+    add_doctests_for_module(pynance)
     return doctest_suite
 
 def test_suite():
