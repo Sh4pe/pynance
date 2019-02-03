@@ -40,4 +40,8 @@ def run_all_unit_tests():
     return len(test_runner.run(test_suite()).failures) == 0
 
 if __name__ == "__main__":
-    run_all_unit_tests()
+    import sys
+    if run_all_unit_tests():
+        sys.exit(0)
+    else:
+        sys.exit(1)
