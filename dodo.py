@@ -29,6 +29,12 @@ def task_graphviz():
             'actions': ['dot -Tpng %s -o %s' % (graph_dot_file, graph_image_file)]
         }
 
+def task_dash_app():
+    return {
+        'actions': [['python', 'run_dash.py']],
+        'verbosity': 2
+    }
+
 def task_notebook():
     return {
         'actions': [['jupyter', 'notebook', '--notebook-dir=notebooks']],
