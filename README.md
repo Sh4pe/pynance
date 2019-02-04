@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/Sh4pe/pynance.svg?branch=master)](https://travis-ci.org/Sh4pe/pynance)
+[![Build status](https://ci.appveyor.com/api/projects/status/f63tmsr561j9pq39?svg=true)](https://ci.appveyor.com/project/Sh4pe/pynance)
+[![codecov](https://codecov.io/gh/Sh4pe/pynance/branch/master/graph/badge.svg)](https://codecov.io/gh/Sh4pe/pynance)
 
 # Prerequisites
 
