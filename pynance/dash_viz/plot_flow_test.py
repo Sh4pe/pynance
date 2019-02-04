@@ -34,5 +34,6 @@ class DashTestCase(unittest.TestCase):
 
 
 def test_suite():
+    """test suite for plot_flow"""
     suite = unittest.makeSuite(DashTestCase)
     return suite
