@@ -1,6 +1,5 @@
 digraph{
     user -> frontend [label="aggregation request"]
-    frontend -> lib [label="aggregation request"]
-    lib -> frontend [label="aggregated data"]
-    frontend -> frontend [label="visualization"]
+    frontend -> frontend [label="aggregated data"]
+    frontend -> user [label="visualization"]
 }
