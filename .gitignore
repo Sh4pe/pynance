@@ -1,7 +1,7 @@
 __pycache__
 *.db
 .ipynb_checkpoints
-.vscode/settings.json
+.vscode/
 docs/graphs/png/*.png
 .doit.db.*
 pynance/*.pyc
