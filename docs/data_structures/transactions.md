@@ -33,11 +33,14 @@ of the transactions.
 
 | Column | Description |
 |--------|-------------|
+| `id` | Ascenting integer that uniquely identifies the transaction |
+| `imported_at` | Unix timestamp of the time when this transaction was imported |
 | `date` | Date when the transaction happened |
 | `sender_account` | String containing the account information of the sender |
 | `receiver_account` | String containing the account information of the receiver |
 | `text` | Text of the transaction |
 | `amount` | Amount of money that has been transferred |
+| `total_balance` | Total balance of the `receiver_account` after this transaction |
 | `currency` | Currency of the transaction like "EUR" or "USD" |
 | `category` | String containing the category of the transaction. May be empty. |
 | `tags` | List of strings containing tags of the transaction. May be empty |
@@ -45,6 +48,7 @@ of the transactions.
 
 **Notes**:
 
+* `id` is an `int`, starting at 0. We probably use the `INTEGER AUTOINCREMENT` feature of sqlite for this.
 * The `date` is the date that is given by the bank that exports data. No information on timezones is stored, since we just go with what the bank gives us.
 * `sender_account` and `receiver_account` should contain everything required to uniquely identify the name of the sender and the accounts involved. For transactions inside Europe, the name and IBAN should be sufficient.
 * The `currency` of the transaction raw data should probably be consistent, i.e. all transactions should be stored in the same currency.
