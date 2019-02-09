@@ -6,6 +6,7 @@ import doctest
 import pynance.dummy_test
 import pynance.textimporter_test
 import pynance.dash_viz.plot_flow_test
+import pynance.database_test
 
 def doc_test_suite():
     "Returns the testsuite doctests for all modules. Please don't forget to add new modules here."
@@ -32,6 +33,7 @@ def test_suite():
     suite.addTests(pynance.dummy_test.test_suite())
     suite.addTests(pynance.textimporter_test.test_suite())
     suite.addTests(pynance.dash_viz.plot_flow_test.test_suite())
+    suite.addTests(pynance.database_test.test_suite())
 
     suite.addTest(doc_test_suite())
 
