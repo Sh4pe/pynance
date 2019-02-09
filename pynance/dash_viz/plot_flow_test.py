@@ -4,6 +4,7 @@ from __future__ import print_function, absolute_import
 import unittest
 import os.path
 import base64
+import json
 
 import pandas as pd
 import numpy as np
@@ -25,9 +26,6 @@ class DashTestCase(unittest.TestCase):
         self.assertEqual(SupportedCsvTypes.DKBVisa,
                          csvtype_string2description('DKBVisa'))
 
-    def test_update_output_None(self):
-        self.assertFalse(update_output(None, "") is None)
-
     def test_onselect_csvtype(self):
         dropdown_values = [None, "DKBCash", "DKBVisa"]
         onselect_response = [False, True, True]
@@ -47,12 +45,23 @@ class DashTestCase(unittest.TestCase):
         self.assertRaises(IOError, parse_invalid_input)
         self.assertRaises(IOError, parse_invalid_input2)
 
-    def test_parse_contents_decode(self):
-        # read a valid csv from file to string,
-        # encode it and pass it to parse
+    def _read_sample_file_like_uploaded(self):
+        """
+        This helper function reads the test file like the dash uploader
+        component does
+        """
         sample_csv_filepath = os.path.join("pynance",
                                            "test_data",
                                            "dkb_cash_sample.csv")
+
+        with open(sample_csv_filepath, "rb") as csvfile:
+            b64encoded = base64.b64encode(csvfile.read())
+            bstr = str(b'data:application/octet-stream;base64,'+b64encoded)
+        return bstr
+
+    def test_parse_contents_decode(self):
+        # read a valid csv from file to string,
+        # encode it and pass it to parse
 
         expected_amount = np.array([-12.16,
                                     120.0,
@@ -61,14 +70,13 @@ class DashTestCase(unittest.TestCase):
                            "DE63500105173984825797",
                            "DE75500105178797957724"]
 
-        with open(sample_csv_filepath, "rb") as csvfile:
-            b64encoded = base64.b64encode(csvfile.read())
-            bstr = str(b'data:application/octet-stream;base64,'+b64encoded)
-            result_df = parse_contents(bstr, "DKBCash")
+        bytestr = self._read_sample_file_like_uploaded()
 
-            assert_array_equal(expected_amount, result_df["amount"].values)
-            self.assertListEqual(expected_sender,
-                                 list(result_df["sender_account"].values))
+        result_df = parse_contents(bytestr, "DKBCash")
+
+        assert_array_equal(expected_amount, result_df["amount"].values)
+        self.assertListEqual(expected_sender,
+                             list(result_df["sender_account"].values))
 
     def test_make_figure(self):
         amounts = [12.34,
@@ -118,6 +126,29 @@ class DashTestCase(unittest.TestCase):
         # total number of y values should be the number
         # of values in amounts
         self.assertEqual(len(all_y_values), len(amounts))
+
+    def test_update_output_None(self):
+        self.assertFalse(update_output(None, "") is None)
+
+    def test_update_output(self):
+        expected_amount = np.array([-12.16,
+                                    120.0,
+                                    -10.0]).astype(np.float64)
+
+        bytestr = self._read_sample_file_like_uploaded()
+
+        response = update_output(bytestr, "DKBCash")
+        response_dict = json.loads(response.data.decode())
+
+        res_charts = response_dict["response"]["props"]["figure"]["data"]
+
+        all_y_values = []
+
+        for res_chart in res_charts:
+            all_y_values += list(res_chart['y'])
+
+        assert_array_equal(np.sort(all_y_values),
+                           np.sort(expected_amount))
 
 
 def test_suite():
