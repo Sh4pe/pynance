@@ -33,12 +33,15 @@ def read_csv(filepath_or_buffer, description):
 
     # read the dataframe as it is, with only strings
     # formatting is done later
-    df_as_is = pd.read_csv(filepath_or_buffer=filepath_or_buffer,
-                           dialect=description.csv_dialect,
-                           skiprows=description.skiprows,
-                           encoding=description.encoding,
-                           usecols=columns_to_read,
-                           dtype=str)
+    try:
+        df_as_is = pd.read_csv(filepath_or_buffer=filepath_or_buffer,
+                               dialect=description.csv_dialect,
+                               skiprows=description.skiprows,
+                               encoding=description.encoding,
+                               usecols=columns_to_read,
+                               dtype=str)
+    except ValueError as e:
+        raise UnsupportedCsvFormatException(str(e))
 
     # construct a new DataFrame that matches the definitions
     new_df = pd.DataFrame()
@@ -48,10 +51,6 @@ def read_csv(filepath_or_buffer, description):
 
         if new_col_name in description.column_map.keys():
             old_col_name = description.column_map[new_col_name]
-
-            if old_col_name not in df_as_is.columns.values:
-                raise UnsupportedCsvFormatException("Column %s was not found in \
-                                                     file" % old_col_name)
 
             # get the formatter for the required type
             formatter = description.formatters[new_type]
