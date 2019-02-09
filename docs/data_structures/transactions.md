@@ -33,7 +33,7 @@ of the transactions.
 
 | Column | Description |
 |--------|-------------|
-| `index` | Ascenting integer that uniquely identifies the transaction |
+| `id` | Ascenting integer that uniquely identifies the transaction |
 | `imported_at` | Unix timestamp of the time when this transaction was imported |
 | `date` | Date when the transaction happened |
 | `sender_account` | String containing the account information of the sender |
@@ -48,7 +48,7 @@ of the transactions.
 
 **Notes**:
 
-* Index is an `int`, starting at 0. We probably use the `INTEGER AUTOINCREMENT` feature of sqlite for this.
+* `id` is an `int`, starting at 0. We probably use the `INTEGER AUTOINCREMENT` feature of sqlite for this.
 * The `date` is the date that is given by the bank that exports data. No information on timezones is stored, since we just go with what the bank gives us.
 * `sender_account` and `receiver_account` should contain everything required to uniquely identify the name of the sender and the accounts involved. For transactions inside Europe, the name and IBAN should be sufficient.
 * The `currency` of the transaction raw data should probably be consistent, i.e. all transactions should be stored in the same currency.
