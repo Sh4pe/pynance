@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittests
 import sys
 import glob
@@ -8,10 +9,10 @@ def task_test():
         # printing to stderr so that doit does not capture the output
         print("### Integration tests are not yet implemented ###", file=sys.stderr)
 
-    for kind, action in [('unit', unittests.run_all_unit_tests), ('integration', integration_test_action)]:
+    for kind, action in [('unit', ['coverage run unittests.py']), ('integration', [integration_test_action])]:
         yield {
             'name': kind,
-            'actions': [action]
+            'actions': action
         }
 
 def task_graphviz():
