@@ -7,7 +7,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from .textimporter import read_csv, SupportedCsvTypes, \
-                          COLUMNS, UnsupportedCsvFormat, \
+                          COLUMNS, UnsupportedCsvFormatException, \
                           CsvFileDescription, DKBFormatters, \
                           DKBCsvDialect
 
@@ -146,7 +146,7 @@ class CsvImportTestCase(unittest.TestCase):
             return read_csv(broken_file,
                             SupportedCsvTypes.DKBCash)
 
-        self.assertRaises(UnsupportedCsvFormat, call_broken)
+        self.assertRaises(UnsupportedCsvFormatException, call_broken)
 
     # Tests VISA
 
