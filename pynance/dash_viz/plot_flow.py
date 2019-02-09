@@ -73,7 +73,8 @@ def parse_contents(contents, csvtype_str):
     Params:
     -------
     contents: byte-like
-        undecoded content of a file to decode
+        Output from the upload component. The first part should be
+        the filename, second part the undecoded content of the file
     csvtype_str: str
         name of a supported csv type, should be name of the attribute of
         SupportedCsvTypes
@@ -85,15 +86,16 @@ def parse_contents(contents, csvtype_str):
     """
     csvtype_desc = csvtype_string2description(csvtype_str)
 
-    content_string = contents.split(',')[1]
-    decoded = base64.b64decode(content_string)
-
-    encoding = csvtype_desc.encoding
-
     try:
-        return read_csv(io.StringIO(decoded.decode(encoding)), csvtype_desc)
+        content_string = contents.split(',')[1]
+        byte_decoded = base64.b64decode(content_string)
+
+        encoding = csvtype_desc.encoding
+        string_io = io.StringIO(byte_decoded.decode(encoding))
     except:
-        raise IOError("Could not load file.")
+        raise IOError("Could not decode file.")
+
+    return read_csv(string_io, csvtype_desc)
 
 
 def make_cashflow_figure(df):

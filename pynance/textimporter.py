@@ -23,6 +23,11 @@ def read_csv(filepath_or_buffer, description):
     pandas.DataFrame : the data as contained in filepath_or_buffer with a
         header defined in COLUMNS. Parts of COLUMNS that have no equivalent in
         filepath_or_buffer are filled with NAN
+
+    Raises
+    ------
+    UnsupportedCsvFormatException
+        if the file does not contain the required header columnsd
     """
     columns_to_read = description.column_map.values()
 
@@ -45,8 +50,8 @@ def read_csv(filepath_or_buffer, description):
             old_col_name = description.column_map[new_col_name]
 
             if old_col_name not in df_as_is.columns.values:
-                raise UnsupportedCsvFormat("Column %s was not found in \
-                                        file" % old_col_name)
+                raise UnsupportedCsvFormatException("Column %s was not found in \
+                                                     file" % old_col_name)
 
             # get the formatter for the required type
             formatter = description.formatters[new_type]
@@ -55,9 +60,9 @@ def read_csv(filepath_or_buffer, description):
                 # apply the formatter
                 new_col = df_as_is[old_col_name].apply(formatter)
             except:
-                raise UnsupportedCsvFormat("Could not convert content of \
-                                            column %s to %s"
-                                           % (old_col_name, new_type))
+                raise UnsupportedCsvFormatException("Could not convert content of \
+                                                     column %s to %s"
+                                                    % (old_col_name, new_type))
 
             new_df[new_col_name] = new_col
         else:
@@ -106,7 +111,7 @@ class CsvFileDescription():
         self.encoding = encoding
 
 
-class UnsupportedCsvFormat(IOError):
+class UnsupportedCsvFormatException(IOError):
     """
         An error that occurs, if the importer is asked to read a CSV file with
         a setting that does not fit the actual file
@@ -166,7 +171,7 @@ class DKBFormatters():
             np.datetime64: cls.to_datetime64,
             str: cls.to_string,
             np.float64: cls.to_float64
-            }
+        }
 
 
 class DKBCsvDialect(csv.Dialect):
@@ -187,23 +192,23 @@ class SupportedCsvTypes():
         with :func:`~textimporter.read_csv~`
     """
     DKBCash = CsvFileDescription(
-            column_map={
-                "date": "Wertstellung",
-                "sender_account": "Kontonummer",
-                "text": "Verwendungszweck",
-                "amount": "Betrag (EUR)",
-            },
-            csv_dialect=DKBCsvDialect(),
-            formatters=DKBFormatters.formatter_map(),
-            skiprows=6,
-            encoding="iso-8859-1")
+        column_map={
+            "date": "Wertstellung",
+            "sender_account": "Kontonummer",
+            "text": "Verwendungszweck",
+            "amount": "Betrag (EUR)",
+        },
+        csv_dialect=DKBCsvDialect(),
+        formatters=DKBFormatters.formatter_map(),
+        skiprows=6,
+        encoding="iso-8859-1")
     DKBVisa = CsvFileDescription(
-            column_map={
-                "date": "Wertstellung",
-                "text": "Beschreibung",
-                "amount": "Betrag (EUR)",
-            },
-            csv_dialect=DKBCsvDialect(),
-            formatters=DKBFormatters.formatter_map(),
-            skiprows=6,
-            encoding="iso-8859-1")
+        column_map={
+            "date": "Wertstellung",
+            "text": "Beschreibung",
+            "amount": "Betrag (EUR)",
+        },
+        csv_dialect=DKBCsvDialect(),
+        formatters=DKBFormatters.formatter_map(),
+        skiprows=6,
+        encoding="iso-8859-1")

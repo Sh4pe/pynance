@@ -6,10 +6,9 @@ import unittest
 import pandas as pd
 
 from .plot_flow import app, csvtype_string2description, update_output,\
-    onselect_csvtype, update_csvtype_store, make_cashflow_figure
+    onselect_csvtype, update_csvtype_store, make_cashflow_figure, \
+    parse_contents
 from ..textimporter import SupportedCsvTypes
-
-# see https://github.com/plotly/dash/issues/297
 
 
 class DashTestCase(unittest.TestCase):
@@ -33,6 +32,17 @@ class DashTestCase(unittest.TestCase):
             result = onselect_csvtype(selected)
             # TODO: how to test if propagation of value change
             # is performed correctly?
+
+    def test_parse_contents_fail(self):
+        def try_parse_invalid_input():
+            return parse_contents("invalid", SupportedCsvTypes.DKBCash)
+
+        def try_parse_invalid_input2():
+            return parse_contents("invalid, invalid",
+                                  SupportedCsvTypes.DKBCash)
+
+        self.assertRaises(IOError, try_parse_invalid_input)
+        self.assertRaises(IOError, try_parse_invalid_input2)
 
     def test_make_figure(self):
         amounts = [12.34,
