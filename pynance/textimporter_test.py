@@ -7,9 +7,9 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from .textimporter import read_csv, SupportedCsvTypes, \
-                          COLUMNS, UnsupportedCsvFormat, \
-                          CsvFileDescription, DKBFormatters, \
-                          DKBCsvDialect
+    COLUMNS, UnsupportedCsvFormat, \
+    CsvFileDescription, DKBFormatters, \
+    DKBCsvDialect
 
 
 class CsvImportTestCase(unittest.TestCase):
@@ -40,15 +40,15 @@ class CsvImportTestCase(unittest.TestCase):
             del bad_formatter_map[str]
 
             CsvFileDescription(column_map={
-                                    "date": "Wertstellung",
-                                    "sender_account": "Kontonummer",
-                                    "text": "Verwendungszweck",
-                                    "amount": "Betrag (EUR)",
-                                    },
-                               csv_dialect=DKBCsvDialect(),
-                               formatters=bad_formatter_map,
-                               skiprows=6,
-                               encoding="iso-8859-1")
+                "date": "Wertstellung",
+                "sender_account": "Kontonummer",
+                "text": "Verwendungszweck",
+                "amount": "Betrag (EUR)",
+            },
+                csv_dialect=DKBCsvDialect(),
+                formatters=bad_formatter_map,
+                skiprows=6,
+                encoding="iso-8859-1")
         self.assertRaises(AssertionError, construction_missing_formatter)
 
     # tests DKB
@@ -110,8 +110,8 @@ class CsvImportTestCase(unittest.TestCase):
     def test_csv_importer_read_dkbcash_amounts(self):
         result_df = self.read_dummy_file_dkbcash_small()
         expected = np.array([-12.16,
-                            120.0,
-                            -10.0]).astype(np.float64)
+                             120.0,
+                             -10.0]).astype(np.float64)
         assert_array_equal(expected, result_df["amount"].values)
 
     def test_csv_importer_read_dkbcash_senderIBANs(self):
@@ -204,9 +204,9 @@ class CsvImportTestCase(unittest.TestCase):
     def test_csv_importer_read_dkbvisa_amounts(self):
         result_df = self.read_dummy_file_dkbvisa_small()
         expected = np.array([-65.00,
-                            -14.33,
-                            -11.42,
-                            -126.45]).astype(np.float64)
+                             -14.33,
+                             -11.42,
+                             -126.45]).astype(np.float64)
         assert_array_equal(expected, result_df["amount"].values)
 
     def test_csv_importer_read_dkbvisa_date(self):
@@ -224,6 +224,42 @@ class CsvImportTestCase(unittest.TestCase):
                     "FRISCHEM.ABC",
                     "REWE Markt GmbH ZW"]
         self.assertListEqual(expected, list(result_df["text"].values))
+
+    def test_read_final_balance(self):
+        """
+        read total balance of an imported file 
+        after the last transaction of that file
+        """
+        dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
+        final_balance_dkbcash = 248.54
+
+        dkb_visa_sample_df = self.read_dummy_file_dkbvisa_small()
+        final_balance_dkbvisa = 465.33
+
+        # check if the balance at the end is equal to the value
+        # given in the header
+        self.assertEqual(final_balance_dkbcash,
+                         dkb_cash_sample_df['total_balance'].iloc[-1])
+        self.assertEqual(final_balance_dkbvisa,
+                         dkb_visa_sample_df['total_balance'].iloc[-1])
+
+    def test_read_all_balance_dkbcash(self):
+        dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
+        balances_dkbcash = [138.54, 258.54, 248.54]
+
+        self.assertListEqual(balances_dkbcash,
+                             dkb_cash_sample_df['total_balance'].tolist())
+
+    def test_read_balance_sanity(self):
+        dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
+        dkb_visa_sample_df = self.read_dummy_file_dkbvisa_small()
+
+        for df in [dkb_cash_sample_df, dkb_visa_sample_df]:
+            amounts = df['amount'].tolist()
+            balances = df['total_balance'].tolist()
+
+            for i in range(len(amounts)-1):
+                self.assertEqual(balances[i+1], balances[i]+amounts[i+1])
 
 
 def test_suite():

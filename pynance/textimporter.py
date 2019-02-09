@@ -124,6 +124,7 @@ COLUMNS = {
     "receiver_account": str,
     "text": str,
     "amount": np.float64,
+    "total_balance": np.float64,
     "currency": str,
     "category": str,
     "tags": str,
@@ -166,7 +167,7 @@ class DKBFormatters():
             np.datetime64: cls.to_datetime64,
             str: cls.to_string,
             np.float64: cls.to_float64
-            }
+        }
 
 
 class DKBCsvDialect(csv.Dialect):
@@ -187,23 +188,23 @@ class SupportedCsvTypes():
         with :func:`~textimporter.read_csv~`
     """
     DKBCash = CsvFileDescription(
-            column_map={
-                "date": "Wertstellung",
-                "sender_account": "Kontonummer",
-                "text": "Verwendungszweck",
-                "amount": "Betrag (EUR)",
-            },
-            csv_dialect=DKBCsvDialect(),
-            formatters=DKBFormatters.formatter_map(),
-            skiprows=6,
-            encoding="iso-8859-1")
+        column_map={
+            "date": "Wertstellung",
+            "sender_account": "Kontonummer",
+            "text": "Verwendungszweck",
+            "amount": "Betrag (EUR)",
+        },
+        csv_dialect=DKBCsvDialect(),
+        formatters=DKBFormatters.formatter_map(),
+        skiprows=6,
+        encoding="iso-8859-1")
     DKBVisa = CsvFileDescription(
-            column_map={
-                "date": "Wertstellung",
-                "text": "Beschreibung",
-                "amount": "Betrag (EUR)",
-            },
-            csv_dialect=DKBCsvDialect(),
-            formatters=DKBFormatters.formatter_map(),
-            skiprows=6,
-            encoding="iso-8859-1")
+        column_map={
+            "date": "Wertstellung",
+            "text": "Beschreibung",
+            "amount": "Betrag (EUR)",
+        },
+        csv_dialect=DKBCsvDialect(),
+        formatters=DKBFormatters.formatter_map(),
+        skiprows=6,
+        encoding="iso-8859-1")
