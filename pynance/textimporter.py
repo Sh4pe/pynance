@@ -93,6 +93,8 @@ class CsvFileDescription():
             to functions that convert an entry into that type
         skiprows : int number of rows to skip while reading the file starting
             at the beginning of the file
+        encoding : string
+            encoding of the csv file, e.g. 'utf-8' or 'iso-8859-1'
         """
 
         # check that for every type in COLUMN, there is a formatter
@@ -208,3 +210,63 @@ class SupportedCsvTypes():
         formatters=DKBFormatters.formatter_map(),
         skiprows=6,
         encoding="iso-8859-1")
+
+
+def read_balance_from_header_dkbcash(header):
+    """
+    read the total_balance after the last transaction of a DKBCash csv-file
+
+    PARAMS:
+    -------
+    header : str
+        string containing the total_balance value
+
+    RETURNS:
+    --------
+    float : total balance after the last transaction in the file
+
+    RAISES:
+    -------
+    IOError
+        if the total balance is not found in the given string
+
+    """
+    lines = header.split('\n')
+
+    for line in lines:
+        # get the line containing the balance
+        if line.startswith('"Kontostand'):
+            cells = line.split(';')
+
+            # get the balance string and strip off quotes and currency
+            balance_str = cells[1].strip('"').split(' ')[0]
+
+            return DKBFormatters.to_float64(balance_str)
+
+    # TODO: use more specific exception
+    raise IOError('Total balance was not found in given header.')
+
+
+def amounts_to_balances(amounts, final_balance):
+    """
+    Gives a list of balances after each transaction
+    Calculated backwards, starting with the given final balance
+
+    PARAMS:
+    -------
+    amounts : iterable of float
+        amount transferred for each transaction
+    final_balance : float
+        total value of the balance after the last transaction
+
+    RETURNS:
+    --------
+    list of float
+        values of the total balance after each transaction
+    """
+    if len(amounts) == 1:
+        return [final_balance]
+    else:
+        return amounts_to_balances(amounts[:-1],
+                                   final_balance-amounts[-1]) \
+            + [final_balance]

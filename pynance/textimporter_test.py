@@ -4,12 +4,14 @@ import unittest
 import os.path
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, \
+    assert_array_almost_equal, assert_almost_equal
 
 from .textimporter import read_csv, SupportedCsvTypes, \
     COLUMNS, UnsupportedCsvFormat, \
     CsvFileDescription, DKBFormatters, \
-    DKBCsvDialect
+    DKBCsvDialect, read_balance_from_header_dkbcash, \
+    amounts_to_balances
 
 
 class CsvImportTestCase(unittest.TestCase):
@@ -260,6 +262,42 @@ class CsvImportTestCase(unittest.TestCase):
 
             for i in range(len(amounts)-1):
                 self.assertEqual(balances[i+1], balances[i]+amounts[i+1])
+
+    def test_read_balance_from_header(self):
+        dummyfile_dkbcash_small = os.path.join("pynance",
+                                               "test_data",
+                                               "dkb_cash_sample.csv")
+        encoding = SupportedCsvTypes.DKBCash.encoding
+
+        with open(dummyfile_dkbcash_small, 'r', encoding=encoding) as testfile:
+            header = testfile.read()
+
+        self.assertEqual(248.54, read_balance_from_header_dkbcash(header))
+
+    def test_read_balance_from_header_invalid(self):
+        invalid_header = "text \n more text \nlorem ipsum"
+
+        def read_invalid_header():
+            return read_balance_from_header_dkbcash(invalid_header)
+
+        self.assertRaises(IOError, read_invalid_header)
+
+    def test_amounts_to_balances1(self):
+        amounts = np.array([-12.23, 9.00, 453.23, -232.32])
+        final_balance = 221.32
+        expected_balances = np.array([-8.59, 0.41, 453.64, 221.32])
+
+        balances = amounts_to_balances(amounts, final_balance)
+        assert_array_almost_equal(expected_balances, balances)
+
+    def test_amounts_to_balances2(self):
+        np.random.seed(0)
+        amounts = np.random.random(100)*1000 - np.random.randint(300, 500)
+        final_balance = np.random.random()*10000
+        balances = amounts_to_balances(amounts, final_balance)
+
+        for i in range(len(amounts)-1):
+            assert_almost_equal(balances[i+1], balances[i]+amounts[i+1])
 
 
 def test_suite():
