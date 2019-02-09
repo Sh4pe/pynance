@@ -160,6 +160,13 @@ class CsvImportTestCase(unittest.TestCase):
 
         self.assertRaises(UnsupportedCsvFormatException, call_broken)
 
+    def test_dkb_float_formatting1(self):
+        formatter = DKBFormatters.to_float64
+
+        self.assertEqual(12.54, formatter("12,54"))
+        self.assertTrue(np.isnan(formatter("")))
+        self.assertEqual(-1200.54, formatter("-1200,54"))
+
     # Tests VISA
 
     def test_csv_importer_read_dkbvisa_empty_columns(self):
