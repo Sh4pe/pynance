@@ -1,8 +1,17 @@
 import unittest
 import os.path
-from tempfile import TemporaryDirectory
+import shutil
+from tempfile import mkdtemp
 
 from pynance.database import LowLevelConnection
+
+class TemporaryDirectory(object):
+    def __enter__(self):
+        self.dir = mkdtemp()
+        return self.dir
+    
+    def __exit__(self, _1, _2, _3):
+        shutil.rmtree(self.dir)
 
 class LowLevelConnectionTestCase(unittest.TestCase):
     def test_creates_database_file_if_not_exists(self):
