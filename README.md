@@ -4,7 +4,10 @@
 
 # Prerequisites
 
-* [doit](http://pydoit.org) - install `doit`
+To install the required packages run
+```
+pip install -r requirements.txt
+```
 
 # Common tasks
 
@@ -21,10 +24,6 @@ $> doit notebook
 ```
 
 ## Dash app
-Make sure you have the following packages installed
-* dash
-* dash_core_components
-* dash_html_component
 
 To start and show in webbrowser, type
 
