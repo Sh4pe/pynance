@@ -35,11 +35,10 @@ class DashTestCase(unittest.TestCase):
 
     def test_parse_contents_fail(self):
         def try_parse_invalid_input():
-            return parse_contents("invalid", SupportedCsvTypes.DKBCash)
+            return parse_contents("invalid", "DKBCash")
 
         def try_parse_invalid_input2():
-            return parse_contents("invalid, invalid",
-                                  SupportedCsvTypes.DKBCash)
+            return parse_contents("invalid, invalid", "DKBCash")
 
         self.assertRaises(IOError, try_parse_invalid_input)
         self.assertRaises(IOError, try_parse_invalid_input2)
