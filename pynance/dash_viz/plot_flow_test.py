@@ -31,9 +31,11 @@ class DashTestCase(unittest.TestCase):
         onselect_response = [False, True, True]
 
         for expected, selected in zip(onselect_response, dropdown_values):
-            result = onselect_csvtype(selected)
-            # TODO: how to test if propagation of value change
-            # is performed correctly?
+            response = onselect_csvtype(selected)
+            response_dict = json.loads(response.data.decode())
+            is_enabled = not response_dict["response"]["props"]["disabled"]
+
+            self.assertEqual(expected, is_enabled)
 
     def test_parse_contents_fail(self):
         def parse_invalid_input():
