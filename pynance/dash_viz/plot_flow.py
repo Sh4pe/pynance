@@ -72,9 +72,9 @@ def parse_contents(contents, csvtype_str):
 
     Params:
     -------
-    contents: byte-like
-        Output from the upload component. The first part should be
-        the filename, second part the undecoded content of the file
+    contents: byte like with header, base64 encoded
+        Output from the upload component. The first is file type description,
+        second part the undecoded content of the file
     csvtype_str: str
         name of a supported csv type, should be name of the attribute of
         SupportedCsvTypes

@@ -2,8 +2,12 @@
 from __future__ import print_function, absolute_import
 
 import unittest
+import os.path
+import base64
 
 import pandas as pd
+import numpy as np
+from numpy.testing import assert_array_equal
 
 from .plot_flow import app, csvtype_string2description, update_output,\
     onselect_csvtype, update_csvtype_store, make_cashflow_figure, \
@@ -34,14 +38,37 @@ class DashTestCase(unittest.TestCase):
             # is performed correctly?
 
     def test_parse_contents_fail(self):
-        def try_parse_invalid_input():
+        def parse_invalid_input():
             return parse_contents("invalid", "DKBCash")
 
-        def try_parse_invalid_input2():
+        def parse_invalid_input2():
             return parse_contents("invalid, invalid", "DKBCash")
 
-        self.assertRaises(IOError, try_parse_invalid_input)
-        self.assertRaises(IOError, try_parse_invalid_input2)
+        self.assertRaises(IOError, parse_invalid_input)
+        self.assertRaises(IOError, parse_invalid_input2)
+
+    def test_parse_contents_decode(self):
+        # read a valid csv from file to string,
+        # encode it and pass it to parse
+        sample_csv_filepath = os.path.join("pynance",
+                                           "test_data",
+                                           "dkb_cash_sample.csv")
+
+        expected_amount = np.array([-12.16,
+                                    120.0,
+                                    -10.0]).astype(np.float64)
+        expected_sender = ["DE39500105174461799382",
+                           "DE63500105173984825797",
+                           "DE75500105178797957724"]
+
+        with open(sample_csv_filepath, "rb") as csvfile:
+            b64encoded = base64.b64encode(csvfile.read())
+            bstr = str(b'data:application/octet-stream;base64,'+b64encoded)
+            result_df = parse_contents(bstr, "DKBCash")
+
+            assert_array_equal(expected_amount, result_df["amount"].values)
+            self.assertListEqual(expected_sender,
+                                 list(result_df["sender_account"].values))
 
     def test_make_figure(self):
         amounts = [12.34,
