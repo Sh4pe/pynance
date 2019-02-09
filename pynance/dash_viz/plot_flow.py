@@ -96,6 +96,50 @@ def parse_contents(contents, csvtype_str):
         raise IOError("Could not load file.")
 
 
+def make_cashflow_figure(df):
+    """
+    Take a transactions dataframe and make a figure out of it,
+    which contains two bar charts: one with green bars for positive
+    transactions, and one with red bars for negative transactions
+
+    Params:
+    -------
+    df: pandas.Dataframe
+        Dataframe which must have the columns date, amount and text
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+        Figure with the visualized data
+    """
+
+    pos = df[df["amount"] >= 0]
+    neg = df[df["amount"] < 0]
+
+    pos_bar = go.Bar(x=pos["date"],
+                     y=pos["amount"],
+                     text=pos["text"],
+                     name="incoming")
+    neg_bar = go.Bar(x=neg["date"],
+                     y=neg["amount"],
+                     text=neg["text"],
+                     name="outgoing")
+
+    fig = go.Figure(
+        data=[pos_bar, neg_bar],
+        layout=go.Layout(
+            showlegend=True,
+            legend=go.layout.Legend(
+                x=0,
+                y=1.0
+            ),
+            margin=go.layout.Margin(l=40, r=0, t=40, b=30)
+        )
+    )
+
+    return fig
+
+
 @app.callback(Output('my-graph', 'figure'),
               [Input('uploader', 'contents')],
               [State('csvtype', 'data')])
@@ -118,32 +162,7 @@ def update_output(content, csvtype_str):
     """
     if content is not None:
         df = parse_contents(content, csvtype_str)
-
-        pos = df[df["amount"] > 0]
-        neg = df[df["amount"] < 0]
-
-        pos_bar = go.Bar(x=pos["date"],
-                         y=pos["amount"],
-                         text=pos["text"],
-                         name="incoming")
-        neg_bar = go.Bar(x=neg["date"],
-                         y=neg["amount"],
-                         text=neg["text"],
-                         name="outgoing")
-
-        fig = go.Figure(
-            data=[pos_bar, neg_bar],
-            layout=go.Layout(
-                showlegend=True,
-                legend=go.layout.Legend(
-                    x=0,
-                    y=1.0
-                ),
-                margin=go.layout.Margin(l=40, r=0, t=40, b=30)
-            )
-        )
-
-        return fig
+        return make_cashflow_figure(df)
     else:
         return go.Figure(data=[])
 
