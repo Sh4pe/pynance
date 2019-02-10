@@ -253,14 +253,17 @@ class CsvImportTestCase(unittest.TestCase):
     def test_dkbvisa_StringIO_import(self):
         csv_desc = SupportedCsvTypes.DKBVisa
 
-        content = """
+        content = u"""
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
             "Saldo:";"465,33 EUR";
             "Datum:";"28.01.2019";
-
-            "Umsatz abgerechnet und nicht im Saldo enthalten";"Wertstellung";"Belegdatum";"Beschreibung";"Betrag (EUR)";"Urspr�nglicher Betrag";
+            """\
+            u'"Umsatz abgerechnet und nicht im Saldo enthalten";'\
+            u'"Wertstellung";"Belegdatum";"Beschreibung";"Betrag'\
+            u' (EUR)";"Ursprünglicher Betrag";'\
+            u"""
             "Ja";"18.01.2019";"17.01.2019";"SPORT";"-65,00";"";
             "Ja";"16.01.2019";"15.01.2019";"FRISCHEM.ABC";"-14,33";"";
             "Ja";"14.01.2019";"11.01.2019";"FRISCHEM.ABC";"-11,42";"";
