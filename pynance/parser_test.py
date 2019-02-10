@@ -36,7 +36,7 @@ class ParserTestCase(unittest.TestCase):
         expected = float(decimal)
         self.assertEqual(expected, result)
 
-    @given(datetimes())
+    @given(datetimes(min_value=datetime.datetime(1900, 1, 1, 0, 0)))
     def test_dkb_date_formatting(self, dt):
         """
         test various dates. First format them into string,
