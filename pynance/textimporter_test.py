@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 import unittest
 import os.path
+import io
 
 import numpy as np
 from numpy.testing import assert_array_equal, \
@@ -10,8 +11,7 @@ from numpy.testing import assert_array_equal, \
 from .textimporter import read_csv, SupportedCsvTypes, \
     COLUMNS, UnsupportedCsvFormat, \
     CsvFileDescription, DKBFormatters, \
-    DKBCsvDialect, read_balance_from_header_dkbcash, \
-    amounts_to_balances
+    DKBCsvDialect, amounts_to_balances
 
 
 class CsvImportTestCase(unittest.TestCase):
@@ -50,7 +50,8 @@ class CsvImportTestCase(unittest.TestCase):
                 csv_dialect=DKBCsvDialect(),
                 formatters=bad_formatter_map,
                 skiprows=6,
-                encoding="iso-8859-1")
+                encoding="iso-8859-1",
+                total_balance_re_pattern=r'(?<=Kontostand vom \d{2}.\d{2}.\d{4}:";")(\d+,\d+)')
         self.assertRaises(AssertionError, construction_missing_formatter)
 
     # tests DKB
@@ -249,8 +250,8 @@ class CsvImportTestCase(unittest.TestCase):
         dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
         balances_dkbcash = [138.54, 258.54, 248.54]
 
-        self.assertListEqual(balances_dkbcash,
-                             dkb_cash_sample_df['total_balance'].tolist())
+        assert_array_almost_equal(balances_dkbcash,
+                                  dkb_cash_sample_df['total_balance'].tolist())
 
     def test_read_balance_sanity(self):
         dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
@@ -261,26 +262,31 @@ class CsvImportTestCase(unittest.TestCase):
             balances = df['total_balance'].tolist()
 
             for i in range(len(amounts)-1):
-                self.assertEqual(balances[i+1], balances[i]+amounts[i+1])
+                assert_almost_equal(balances[i+1], balances[i]+amounts[i+1])
 
-    def test_read_balance_from_header(self):
+    def test_dkbcash_balance_regex_match(self):
         dummyfile_dkbcash_small = os.path.join("pynance",
                                                "test_data",
                                                "dkb_cash_sample.csv")
-        encoding = SupportedCsvTypes.DKBCash.encoding
 
-        with open(dummyfile_dkbcash_small, 'r', encoding=encoding) as testfile:
-            header = testfile.read()
+        csv_desc = SupportedCsvTypes.DKBCash
+        expected_balance = 248.54
 
-        self.assertEqual(248.54, read_balance_from_header_dkbcash(header))
+        balance = csv_desc.read_total_balance(dummyfile_dkbcash_small)
 
-    def test_read_balance_from_header_invalid(self):
-        invalid_header = "text \n more text \nlorem ipsum"
+        self.assertEqual(expected_balance, balance)
 
-        def read_invalid_header():
-            return read_balance_from_header_dkbcash(invalid_header)
+    def test_dkbvisa_balance_regex_match(self):
+        dummyfile_dkbvisa_small = os.path.join("pynance",
+                                               "test_data",
+                                               "dkb_visa_sample.csv")
 
-        self.assertRaises(IOError, read_invalid_header)
+        csv_desc = SupportedCsvTypes.DKBVisa
+        expected_balance = 465.33
+
+        balance = csv_desc.read_total_balance(dummyfile_dkbvisa_small)
+
+        self.assertEqual(expected_balance, balance)
 
     def test_amounts_to_balances1(self):
         amounts = np.array([-12.23, 9.00, 453.23, -232.32])
