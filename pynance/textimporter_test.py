@@ -262,7 +262,7 @@ class CsvImportTestCase(unittest.TestCase):
             """\
             u'"Umsatz abgerechnet und nicht im Saldo enthalten";'\
             u'"Wertstellung";"Belegdatum";"Beschreibung";"Betrag'\
-            u' (EUR)";"Ursprünglicher Betrag";'\
+            u' (EUR)";"Ursprunglicher Betrag";'\
             u"""
             "Ja";"18.01.2019";"17.01.2019";"SPORT";"-65,00";"";
             "Ja";"16.01.2019";"15.01.2019";"FRISCHEM.ABC";"-14,33";"";
