@@ -13,11 +13,19 @@ from .textimporter import DKBFormatters
 
 
 class ParserTestCase(unittest.TestCase):
+    """
+    Contains tests that concern the safe reading of text files and
+    reading data from it
+    """
 
     @given(decimals(allow_infinity=False,
                     allow_nan=False,
                     places=2))
     def test_dkb_float_formatting1(self, decimal):
+        """
+        test all kinds of decimal numbers, that are formatted
+        with de-DE locale
+        """
         locale.setlocale(locale.LC_ALL, 'de_DE')
 
         german_number_str = locale.format("%f",
@@ -29,7 +37,11 @@ class ParserTestCase(unittest.TestCase):
         self.assertEqual(expected, result)
 
     @given(datetimes())
-    def test_dkb_date_formatting1(self, dt):
+    def test_dkb_date_formatting(self, dt):
+        """
+        test various dates. First format them into string,
+        then let the formatter try to parse them back to datetime
+        """
         datestr = dt.strftime("%d.%m.%Y")
         formatter = DKBFormatters.to_datetime64
         date_result = formatter(datestr)
