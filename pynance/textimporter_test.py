@@ -9,7 +9,7 @@ from numpy.testing import assert_array_equal, \
     assert_array_almost_equal, assert_almost_equal
 
 from .textimporter import read_csv, SupportedCsvTypes, \
-    COLUMNS, UnsupportedCsvFormat, \
+    COLUMNS, UnsupportedCsvFormatException, \
     CsvFileDescription, DKBFormatters, \
     DKBCsvDialect, amounts_to_balances
 
@@ -37,6 +37,7 @@ class CsvImportTestCase(unittest.TestCase):
 
     # test construction of an invalid CsvFileDescription
     def test_create_invalid_CsvFileDescription(self):
+
         def construction_missing_formatter():
             bad_formatter_map = DKBFormatters.formatter_map()
             del bad_formatter_map[str]
@@ -151,7 +152,26 @@ class CsvImportTestCase(unittest.TestCase):
             return read_csv(broken_file,
                             SupportedCsvTypes.DKBCash)
 
-        self.assertRaises(UnsupportedCsvFormat, call_broken)
+        self.assertRaises(UnsupportedCsvFormatException, call_broken)
+
+    def test_csv_importer_wrong_header(self):
+        def call_broken():
+            broken_file = os.path.join("pynance",
+                                       "test_data",
+                                       "dkb_cash_sample_wrong_col.csv")
+            assert os.path.isfile(broken_file)
+
+            return read_csv(broken_file,
+                            SupportedCsvTypes.DKBCash)
+
+        self.assertRaises(UnsupportedCsvFormatException, call_broken)
+
+    def test_dkb_float_formatting1(self):
+        formatter = DKBFormatters.to_float64
+
+        self.assertEqual(12.54, formatter("12,54"))
+        self.assertTrue(np.isnan(formatter("")))
+        self.assertEqual(-1200.54, formatter("-1200,54"))
 
     # Tests VISA
 
@@ -230,6 +250,31 @@ class CsvImportTestCase(unittest.TestCase):
                     "REWE Markt GmbH ZW"]
         self.assertListEqual(expected, list(result_df["text"].values))
 
+    def test_dkbvisa_StringIO_import(self):
+        csv_desc = SupportedCsvTypes.DKBVisa
+
+        content = """
+            "Kreditkarte:";"3546********6546";
+
+            "Zeitraum:";"letzten 60 Tage";
+            "Saldo:";"465,33 EUR";
+            "Datum:";"28.01.2019";
+
+            "Umsatz abgerechnet und nicht im Saldo enthalten";"Wertstellung";"Belegdatum";"Beschreibung";"Betrag (EUR)";"Urspr�nglicher Betrag";
+            "Ja";"18.01.2019";"17.01.2019";"SPORT";"-65,00";"";
+            "Ja";"16.01.2019";"15.01.2019";"FRISCHEM.ABC";"-14,33";"";
+            "Ja";"14.01.2019";"11.01.2019";"FRISCHEM.ABC";"-11,42";"";
+            "Ja";"14.01.2019";"12.01.2019";"REWE Markt GmbH ZW";"-126,45";"";
+            """
+        header_stream = io.StringIO(content)
+        df = read_csv(header_stream, csv_desc)
+
+        expected = ["SPORT",
+                    "FRISCHEM.ABC",
+                    "FRISCHEM.ABC",
+                    "REWE Markt GmbH ZW"]
+        self.assertListEqual(expected, df["text"].tolist())
+
     def test_read_final_balance(self):
         """
         read total balance of an imported file
@@ -290,6 +335,23 @@ class CsvImportTestCase(unittest.TestCase):
 
         self.assertEqual(expected_balance, balance)
 
+    def test_dkbvisa_StringIO_regex_match(self):
+        csv_desc = SupportedCsvTypes.DKBVisa
+
+        header = """
+            "Kreditkarte:";"3546********6546";
+
+            "Zeitraum:";"letzten 60 Tage";
+            "Saldo:";"465,33 EUR";
+            "Datum:";"28.01.2019";
+
+            "Umsatz abgerechnet und nicht im Saldo enthalte
+            """
+        header_stream = io.StringIO(header)
+        balance = csv_desc.read_total_balance(header_stream)
+
+        self.assertEqual(465.33, balance)
+
     def test_dkbvisa_failing_regex_match(self):
         csv_desc = SupportedCsvTypes.DKBVisa
 
@@ -302,11 +364,12 @@ class CsvImportTestCase(unittest.TestCase):
 
             "Umsatz abgerechnet und nicht im Saldo enthalte
             """
+        header_stream = io.StringIO(invalid_header)
 
         def parse_invald_header():
-            csv_desc.read_total_balance(io.StringIO(invalid_header))
+            csv_desc.read_total_balance(header_stream)
 
-        self.assertRaises(UnsupportedCsvFormat, parse_invald_header)
+        self.assertRaises(UnsupportedCsvFormatException, parse_invald_header)
 
     def test_amounts_to_balances1(self):
         amounts = np.array([-12.23, 9.00, 453.23, -232.32])

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function, absolute_import
 
 import unittest
 import doctest
 import pynance.dummy_test
 import pynance.textimporter_test
+import pynance.dash_viz.plot_flow_test
 
 def doc_test_suite():
     "Returns the testsuite doctests for all modules. Please don't forget to add new modules here."
@@ -29,6 +31,7 @@ def test_suite():
     suite = unittest.TestSuite()
     suite.addTests(pynance.dummy_test.test_suite())
     suite.addTests(pynance.textimporter_test.test_suite())
+    suite.addTests(pynance.dash_viz.plot_flow_test.test_suite())
 
     suite.addTest(doc_test_suite())
 
@@ -38,6 +41,7 @@ def test_suite():
 def run_all_unit_tests():
     test_runner = unittest.TextTestRunner()
     return len(test_runner.run(test_suite()).failures) == 0
+
 
 if __name__ == "__main__":
     import sys

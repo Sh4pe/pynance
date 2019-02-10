@@ -25,17 +25,25 @@ def read_csv(filepath_or_buffer, description):
     pandas.DataFrame : the data as contained in filepath_or_buffer with a
         header defined in COLUMNS. Parts of COLUMNS that have no equivalent in
         filepath_or_buffer are filled with NAN
+
+    Raises
+    ------
+    UnsupportedCsvFormatException
+        if the file does not contain the required header columnsd
     """
     columns_to_read = description.column_map.values()
 
     # read the dataframe as it is, with only strings
     # formatting is done later
-    df_as_is = pd.read_csv(filepath_or_buffer=filepath_or_buffer,
-                           dialect=description.csv_dialect,
-                           skiprows=description.skiprows,
-                           encoding=description.encoding,
-                           usecols=columns_to_read,
-                           dtype=str)
+    try:
+        df_as_is = pd.read_csv(filepath_or_buffer=filepath_or_buffer,
+                               dialect=description.csv_dialect,
+                               skiprows=description.skiprows,
+                               encoding=description.encoding,
+                               usecols=columns_to_read,
+                               dtype=str)
+    except ValueError as e:
+        raise UnsupportedCsvFormatException(str(e))
 
     # construct a new DataFrame that matches the definitions
     new_df = pd.DataFrame()
@@ -46,10 +54,6 @@ def read_csv(filepath_or_buffer, description):
         if new_col_name in description.column_map.keys():
             old_col_name = description.column_map[new_col_name]
 
-            if old_col_name not in df_as_is.columns.values:
-                raise UnsupportedCsvFormat("Column %s was not found in \
-                                        file" % old_col_name)
-
             # get the formatter for the required type
             formatter = description.formatters[new_type]
 
@@ -57,9 +61,9 @@ def read_csv(filepath_or_buffer, description):
                 # apply the formatter
                 new_col = df_as_is[old_col_name].apply(formatter)
             except:
-                raise UnsupportedCsvFormat("Could not convert content of \
-                                            column %s to %s"
-                                           % (old_col_name, new_type))
+                raise UnsupportedCsvFormatException("Could not convert content of \
+                                                     column %s to %s"
+                                                    % (old_col_name, new_type))
 
             new_df[new_col_name] = new_col
         else:
@@ -123,7 +127,7 @@ class CsvFileDescription():
 
     def read_total_balance(self, filepath_or_buffer):
         """
-        Parses a filepath or buffer for a regex given in 
+        Parses a filepath or buffer for a regex given in
         total_balance_re_pattern and formats it into a number
 
         PARAMS:
@@ -149,6 +153,7 @@ class CsvFileDescription():
         # to support filepaths, urls, buffers...
 
         def read_from_buffer(buffer):
+
             for line in buffer.readlines():
                 match = re.search(self.total_balance_re_pattern, line)
                 if match:
@@ -156,19 +161,20 @@ class CsvFileDescription():
                     formatter = self.formatters[target_type]
                     return formatter(match.group(0))
 
-            raise UnsupportedCsvFormat(
+            raise UnsupportedCsvFormatException(
                 'Total balance was not found in given file or stream.')
 
         try:
             # try to use filepath_or_buffer like a filepath
-            with open(filepath_or_buffer, 'r') as buffer:
+            with open(filepath_or_buffer, 'r', encoding=self.encoding) \
+                    as buffer:
                 return read_from_buffer(buffer)
         except (TypeError, AttributeError):
             # try to use read directly
             return read_from_buffer(filepath_or_buffer)
 
 
-class UnsupportedCsvFormat(IOError):
+class UnsupportedCsvFormatException(IOError):
     """
         An error that occurs, if the importer is asked to read a CSV file with
         a setting that does not fit the actual file
