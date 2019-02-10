@@ -1,0 +1,43 @@
+from __future__ import absolute_import
+
+import unittest
+import datetime
+import locale
+
+import numpy as np
+
+from hypothesis import given
+from hypothesis.strategies import datetimes, decimals
+
+from .textimporter import DKBFormatters
+
+
+class ParserTestCase(unittest.TestCase):
+
+    @given(decimals(allow_infinity=False,
+                    allow_nan=False,
+                    places=2))
+    def test_dkb_float_formatting1(self, decimal):
+        locale.setlocale(locale.LC_ALL, 'de_DE')
+
+        german_number_str = locale.format("%f",
+                                          decimal, grouping=True)
+
+        formatter = DKBFormatters.to_float64
+        result = formatter(german_number_str)
+        expected = float(decimal)
+        self.assertEqual(expected, result)
+
+    @given(datetimes())
+    def test_dkb_date_formatting1(self, dt):
+        datestr = dt.strftime("%d.%m.%Y")
+        formatter = DKBFormatters.to_datetime64
+        date_result = formatter(datestr)
+        expected = np.datetime64(dt.date())
+
+        self.assertEqual(expected, date_result)
+
+
+def test_suite():
+    suite = unittest.makeSuite(ParserTestCase)
+    return suite
