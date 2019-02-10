@@ -8,10 +8,10 @@ import numpy as np
 from numpy.testing import assert_array_equal, \
     assert_array_almost_equal, assert_almost_equal
 
-from .textimporter import read_csv, SupportedCsvTypes, \
+from .textimporter import read_csv, \
     COLUMNS, UnsupportedCsvFormatException, \
-    CsvFileDescription, DKBFormatters, \
-    DKBCsvDialect, amounts_to_balances
+    CsvFileDescription, amounts_to_balances
+from .dkb import SupportedCsvTypes, DKBFormatters, DKBCsvDialect
 
 
 class CsvImportTestCase(unittest.TestCase):

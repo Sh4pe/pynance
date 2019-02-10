@@ -9,7 +9,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
-from pynance.textimporter import read_csv, SupportedCsvTypes
+from pynance.textimporter import read_csv
+from pynance.dkb import SupportedCsvTypes
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
