@@ -171,6 +171,7 @@ class CsvFileDescription():
                 return read_from_buffer(buffer)
         except (TypeError, AttributeError):
             # try to use read directly
+            filepath_or_buffer.seek(0)
             return read_from_buffer(filepath_or_buffer)
 
 
