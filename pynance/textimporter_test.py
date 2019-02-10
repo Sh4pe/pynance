@@ -51,7 +51,9 @@ class CsvImportTestCase(unittest.TestCase):
                 formatters=bad_formatter_map,
                 skiprows=6,
                 encoding="iso-8859-1",
-                total_balance_re_pattern=r'(?<=Kontostand vom \d{2}.\d{2}.\d{4}:";")(\d+,\d+)')
+                total_balance_re_pattern=r'(?<=Kontostand vom '
+                                         r'\d{2}.\d{2}.\d{4}:";")'
+                                         r'(\d+,\d+)')
         self.assertRaises(AssertionError, construction_missing_formatter)
 
     # tests DKB
@@ -230,7 +232,7 @@ class CsvImportTestCase(unittest.TestCase):
 
     def test_read_final_balance(self):
         """
-        read total balance of an imported file 
+        read total balance of an imported file
         after the last transaction of that file
         """
         dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
@@ -287,6 +289,24 @@ class CsvImportTestCase(unittest.TestCase):
         balance = csv_desc.read_total_balance(dummyfile_dkbvisa_small)
 
         self.assertEqual(expected_balance, balance)
+
+    def test_dkbvisa_failing_regex_match(self):
+        csv_desc = SupportedCsvTypes.DKBVisa
+
+        invalid_header = """
+            "Kreditkarte:";"3546********6546";
+
+            "Zeitraum:";"letzten 60 Tage";
+            "BALANCE:";"465,33 EUR";
+            "Datum:";"28.01.2019";
+
+            "Umsatz abgerechnet und nicht im Saldo enthalte
+            """
+
+        def parse_invald_header():
+            csv_desc.read_total_balance(io.StringIO(invalid_header))
+
+        self.assertRaises(UnsupportedCsvFormat, parse_invald_header)
 
     def test_amounts_to_balances1(self):
         amounts = np.array([-12.23, 9.00, 453.23, -232.32])

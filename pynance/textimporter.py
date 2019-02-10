@@ -3,6 +3,7 @@ import datetime
 import re
 
 import pandas as pd
+
 import numpy as np
 
 
@@ -69,7 +70,8 @@ def read_csv(filepath_or_buffer, description):
             empty_series = pd.Series(dtype=new_type)
             new_df[new_col_name] = empty_series
 
-    # read the total balance with the parser provided by `description`
+    # read the total balance with the parser as
+    # provided by `description`
     final_total_balance = description.read_total_balance(filepath_or_buffer)
 
     amounts = new_df['amount'].values
@@ -120,18 +122,32 @@ class CsvFileDescription():
         self.total_balance_re_pattern = total_balance_re_pattern
 
     def read_total_balance(self, filepath_or_buffer):
-        with open(filepath_or_buffer,
-                  mode='r', encoding=self.encoding) as file_:
 
-            for line in file_.readlines():
+        # TODO: check pandas.io.common.get_filepath_or_buffer
+        # to support filepaths, urls, buffers...
+        # it returns ({a filepath_ or buffer or S3File instance},
+        #           encoding, str,
+        #           compression, str,
+        #           should_close, bool)
+
+        def read_from_buffer(buffer):
+            for line in buffer.readlines():
                 match = re.search(self.total_balance_re_pattern, line)
                 if match:
                     target_type = COLUMNS['total_balance']
                     formatter = self.formatters[target_type]
                     return formatter(match.group(0))
 
-        raise UnsupportedCsvFormat(
-            'Total balance was not found in given header.')
+            raise UnsupportedCsvFormat(
+                'Total balance was not found in given header.')
+
+        try:
+            # try to use filepath_or_buffer like a filepath
+            with open(filepath_or_buffer, 'r') as buffer:
+                return read_from_buffer(buffer)
+        except (TypeError, AttributeError):
+            # try to use read directly
+            return read_from_buffer(filepath_or_buffer)
 
 
 class UnsupportedCsvFormat(IOError):
@@ -226,7 +242,8 @@ class SupportedCsvTypes():
         formatters=DKBFormatters.formatter_map(),
         skiprows=6,
         encoding="iso-8859-1",
-        total_balance_re_pattern=r'(?<=Kontostand vom \d{2}.\d{2}.\d{4}:";")(\d+,\d+)')
+        total_balance_re_pattern=r'(?<=Kontostand vom \d{2}.\d{2}.\d{4}:";")'
+                                 r'(\d+,\d+)')
 
     DKBVisa = CsvFileDescription(
         column_map={
@@ -239,47 +256,6 @@ class SupportedCsvTypes():
         skiprows=6,
         encoding="iso-8859-1",
         total_balance_re_pattern=r'(?<=Saldo:";")(\d+,\d+)')
-
-
-# def make_dkb_total_balance_parser(description, total_balance_label):
-#     """
-#     read the total_balance after the last transaction of a DKBCash csv-file
-
-#     PARAMS:
-#     -------
-#     description : CsvFileDescription, a description of how the CSV file is to
-#         be read and transformed
-#     total_balance_label : str
-#         label of the row to look for, when searching the total balance
-
-#     RETURNS:
-#     --------
-#     func: filepath_or_buffer -> float :
-#         a function that parses a given filepath_or_buffer for a total balance
-#         after the last transaction in the file, which raises an IOError
-#         if the total balance is not found in the given string
-
-#     """
-#     def total_balance_parser(filepath_or_buffer):
-#         header = pd.read_csv(filepath_or_buffer=filepath_or_buffer,
-#                              dialect=description.csv_dialect,
-#                              skiprows=0,
-#                              nrows=description.skiprows,
-#                              encoding=description.encoding,
-#                              dtype=str,
-#                              error_bad_lines=False)
-
-#         for i, row in header.iterrows():
-#             if total_balance_label in row[0]:
-#                 # get the balance string and strip off quotes and currency
-#                 balance_str = row[1].split(' ')[0]
-
-#                 return DKBFormatters.to_float64(balance_str)
-
-#         # TODO: use more specific exception
-#         raise IOError('Total balance was not found in given header.')
-
-#     return total_balance_parser
 
 
 def amounts_to_balances(amounts, final_balance):
