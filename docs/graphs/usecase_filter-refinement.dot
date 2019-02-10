@@ -1,6 +1,4 @@
 digraph {
     user -> frontend [label="filter request"]
-    frontend -> lib [label="filter"]
-    lib -> frontend [label="filtered data"]
-    frontend -> frontend [label=visualization]
+    frontend -> user[label="visualization"]
 }

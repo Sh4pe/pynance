@@ -1,9 +1,8 @@
 digraph {
     user -> frontend [label = "date range"]
-    frontend -> lib [label = "user filter"]
-    lib -> db [label = "default query"]
+    frontend -> frontend [label = "filtered data"]
+    lib -> db [label = "query"]
     db -> lib [label = "all data"]
-    lib -> lib [label = "filtered data"]
-    lib -> frontend [label = data]
-    frontend -> frontend [label = visualization]
+    lib -> frontend [label = "data"]
+    frontend -> user [label = "   visualization"]
 }

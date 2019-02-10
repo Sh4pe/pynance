@@ -1,0 +1,32 @@
+digraph hierarchy {
+size="10,5"
+node[   shape=record,
+        style=filled,
+        fillcolor=gray95]
+edge[dir=back, arrowtail=none]
+
+
+ps[label = "{Transactions|
+                all_transactions\l|
+                + load() : void\l
+                + add_transactions(dataframe) : dataframe\l
+                + update(dataframe) : void\l
+                }"]
+imp[label = "{read_csv(file, CsvFileDescription) : dataframe}"]
+tfd[label = "{CsvFileDescription|
+                dict: column_map\l
+                csv.Dialect: csv_dialect\l
+                dict: formatters \l
+                int: skiprows \l
+                str: encoding \l}"]
+db[label = "{Database|
+                string: db_credentials\l|
+                + load() : dataframe\l
+                + store(dataframe)\l}"]
+
+
+ps -> db
+imp -> tfd
+
+}
+
