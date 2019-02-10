@@ -1,0 +1,10 @@
+"Kontonummer:";"DE95500105178154844163 / Girokonto";
+
+"Von:";"01.12.2018";
+"Bis:";"15.12.2018";
+"Kontostand vom 15.12.2018:";"248,54 EUR";
+
+"Buchungstag";"Wertstellung";"Buchungstext";"Auftraggeber / Begünstigter";"Verwendungszweck";"Kontonummer";"BLZ";"BETRAG (USD)";"Gläubiger-ID";"Mandatsreferenz";"Kundenreferenz";
+"04.12.2018";"04.12.2018";"Lastschrift";""PayPal (Europe) S.a.r.l. et Cie.";"PP.4882.PP . FLIXBUS, Ihr Einkauf bei FLIXBUS";"DE39500105174461799382 ";"DEUTDEFFXXX";"-12,16";"LU96ZZZ0000000000000000058                       ";"4SP2224T3WZC4         ";"";
+"03.12.2018";"03.12.2018";"Gutschrift";"Hans Mustermann";"Miete 2017";"DE63500105173984825797 ";"BYLADEM1001";"120,00";"";"";"NOTPROVIDED";
+"03.12.2018";"03.12.2018";"Lastschrift";"HANSEMERKUR SPEZIALE KV. AG";"Vers.-Nr.0065435465, Helene Musterfrau";"DE75500105178797957724";"PBNKDEFFXXX";"-10,00";"DE73ZZZ00000062190    ";"9906336193000";"";

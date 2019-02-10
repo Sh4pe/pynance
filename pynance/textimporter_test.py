@@ -7,9 +7,9 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from .textimporter import read_csv, SupportedCsvTypes, \
-                          COLUMNS, UnsupportedCsvFormat, \
-                          CsvFileDescription, DKBFormatters, \
-                          DKBCsvDialect
+    COLUMNS, UnsupportedCsvFormatException, \
+    CsvFileDescription, DKBFormatters, \
+    DKBCsvDialect
 
 
 class CsvImportTestCase(unittest.TestCase):
@@ -40,15 +40,15 @@ class CsvImportTestCase(unittest.TestCase):
             del bad_formatter_map[str]
 
             CsvFileDescription(column_map={
-                                    "date": "Wertstellung",
-                                    "sender_account": "Kontonummer",
-                                    "text": "Verwendungszweck",
-                                    "amount": "Betrag (EUR)",
-                                    },
-                               csv_dialect=DKBCsvDialect(),
-                               formatters=bad_formatter_map,
-                               skiprows=6,
-                               encoding="iso-8859-1")
+                "date": "Wertstellung",
+                "sender_account": "Kontonummer",
+                "text": "Verwendungszweck",
+                "amount": "Betrag (EUR)",
+            },
+                csv_dialect=DKBCsvDialect(),
+                formatters=bad_formatter_map,
+                skiprows=6,
+                encoding="iso-8859-1")
         self.assertRaises(AssertionError, construction_missing_formatter)
 
     # tests DKB
@@ -110,8 +110,8 @@ class CsvImportTestCase(unittest.TestCase):
     def test_csv_importer_read_dkbcash_amounts(self):
         result_df = self.read_dummy_file_dkbcash_small()
         expected = np.array([-12.16,
-                            120.0,
-                            -10.0]).astype(np.float64)
+                             120.0,
+                             -10.0]).astype(np.float64)
         assert_array_equal(expected, result_df["amount"].values)
 
     def test_csv_importer_read_dkbcash_senderIBANs(self):
@@ -146,7 +146,26 @@ class CsvImportTestCase(unittest.TestCase):
             return read_csv(broken_file,
                             SupportedCsvTypes.DKBCash)
 
-        self.assertRaises(UnsupportedCsvFormat, call_broken)
+        self.assertRaises(UnsupportedCsvFormatException, call_broken)
+
+    def test_csv_importer_wrong_header(self):
+        def call_broken():
+            broken_file = os.path.join("pynance",
+                                       "test_data",
+                                       "dkb_cash_sample_wrong_col.csv")
+            assert os.path.isfile(broken_file)
+
+            return read_csv(broken_file,
+                            SupportedCsvTypes.DKBCash)
+
+        self.assertRaises(UnsupportedCsvFormatException, call_broken)
+
+    def test_dkb_float_formatting1(self):
+        formatter = DKBFormatters.to_float64
+
+        self.assertEqual(12.54, formatter("12,54"))
+        self.assertTrue(np.isnan(formatter("")))
+        self.assertEqual(-1200.54, formatter("-1200,54"))
 
     # Tests VISA
 
@@ -204,9 +223,9 @@ class CsvImportTestCase(unittest.TestCase):
     def test_csv_importer_read_dkbvisa_amounts(self):
         result_df = self.read_dummy_file_dkbvisa_small()
         expected = np.array([-65.00,
-                            -14.33,
-                            -11.42,
-                            -126.45]).astype(np.float64)
+                             -14.33,
+                             -11.42,
+                             -126.45]).astype(np.float64)
         assert_array_equal(expected, result_df["amount"].values)
 
     def test_csv_importer_read_dkbvisa_date(self):

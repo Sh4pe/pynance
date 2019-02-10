@@ -4,7 +4,10 @@
 
 # Prerequisites
 
-* [doit](http://pydoit.org) - install `doit`
+To install the required packages run
+```
+pip install -r requirements.txt
+```
 
 # Common tasks
 
@@ -18,4 +21,12 @@ Start Jupyter notebook.
 
 ```
 $> doit notebook
+```
+
+## Dash app
+
+To start and show in webbrowser, type
+
+```
+$> doit dash_app
 ```
