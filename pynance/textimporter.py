@@ -122,13 +122,31 @@ class CsvFileDescription():
         self.total_balance_re_pattern = total_balance_re_pattern
 
     def read_total_balance(self, filepath_or_buffer):
+        """
+        Parses a filepath or buffer for a regex given in 
+        total_balance_re_pattern and formats it into a number
 
-        # TODO: check pandas.io.common.get_filepath_or_buffer
+        PARAMS:
+        -------
+        filepath_or_buffer : str, pathlib.Path, py._path.local.LocalPath or
+            any object with a readlines() method
+
+        RETURNS:
+        --------
+        number :
+            total balance as specified of the type that is defined for the
+            `total_balance` column using a formatter given in the
+            formatters dict
+
+        RAISES:
+        -------
+        UnsupportedCsvFormat :
+            if the total_balance was not found in the given filepath or buffer
+
+        """
+
+        # TODO: check if we need pandas.io.common.get_filepath_or_buffer
         # to support filepaths, urls, buffers...
-        # it returns ({a filepath_ or buffer or S3File instance},
-        #           encoding, str,
-        #           compression, str,
-        #           should_close, bool)
 
         def read_from_buffer(buffer):
             for line in buffer.readlines():
@@ -139,7 +157,7 @@ class CsvFileDescription():
                     return formatter(match.group(0))
 
             raise UnsupportedCsvFormat(
-                'Total balance was not found in given header.')
+                'Total balance was not found in given file or stream.')
 
         try:
             # try to use filepath_or_buffer like a filepath
