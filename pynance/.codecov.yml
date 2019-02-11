@@ -5,7 +5,10 @@ coverage:
 
   status:
     project: no
-    patch: yes
+    patch:
+      default:
+        # coverage may fall by <1.0% and still be considered "passing"
+        threshold: 1.0%
     changes: no
 
 comment:
