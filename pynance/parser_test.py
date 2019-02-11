@@ -26,7 +26,7 @@ class ParserTestCase(unittest.TestCase):
         test all kinds of decimal numbers, that are formatted
         with de-DE locale
         """
-        locale.setlocale(locale.LC_ALL, 'de')
+        locale.setlocale(locale.LC_ALL, 'de_DE.utf8')
 
         german_number_str = locale.format("%f",
                                           decimal, grouping=True)

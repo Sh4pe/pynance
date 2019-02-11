@@ -6,10 +6,7 @@ matrix:
       python: "3.6"
     - os: linux
       python: "2.7"
-      addons:
-        apt:
-          packages:
-            - language-pack-de
+      install: sudo apt-get install language-pack-de
     - os: osx
       language: generic
       install: sudo -H pip install -r requirements.txt
