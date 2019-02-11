@@ -1,14 +1,17 @@
 coverage:
   precision: 2
   round: down
-  range: "90...100"
+  range: "70...100"
 
   status:
-    project: no
+    project:
+      default:
+        enabled: yes
+        target: 90%
+        threshold: 5%
     patch:
       default:
-        # coverage may fall by <1.0% and still be considered "passing"
-        threshold: 1.0%
+        enabled: no
     changes: no
 
 comment:
