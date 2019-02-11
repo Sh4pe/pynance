@@ -341,7 +341,7 @@ class CsvImportTestCase(unittest.TestCase):
     def test_dkbvisa_StringIO_regex_match(self):
         csv_desc = SupportedCsvTypes.DKBVisa
 
-        header = """
+        header = u"""
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
@@ -358,7 +358,7 @@ class CsvImportTestCase(unittest.TestCase):
     def test_dkbvisa_failing_regex_match(self):
         csv_desc = SupportedCsvTypes.DKBVisa
 
-        invalid_header = """
+        invalid_header = u"""
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";

@@ -1,4 +1,5 @@
 import re
+import codecs
 
 import pandas as pd
 import numpy as np
@@ -188,7 +189,7 @@ class CsvFileDescription():
 
         try:
             # try to use filepath_or_buffer like a filepath
-            with open(filepath_or_buffer, 'r', encoding=self.encoding) \
+            with codecs.open(filepath_or_buffer, 'r', encoding=self.encoding) \
                     as buffer:
                 return read_from_buffer(buffer)
         except (TypeError, AttributeError):
