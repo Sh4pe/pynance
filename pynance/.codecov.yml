@@ -11,7 +11,9 @@ coverage:
         threshold: 5%
     patch:
       default:
-        enabled: no
+        enabled: yes
+        target: 90%
+        threshold: 5%
     changes: no
 
 comment:
