@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import unittest
 import datetime
 import locale
+import platform
 
 import numpy as np
 
@@ -26,7 +27,12 @@ class ParserTestCase(unittest.TestCase):
         test all kinds of decimal numbers, that are formatted
         with de-DE locale
         """
-        locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+        if platform.system() == "Windows":
+            locale_string = "German"
+        else:
+            locale_string = 'de_DE.UTF-8'
+
+        locale.setlocale(locale.LC_ALL, locale_string)
 
         german_number_str = locale.format("%f",
                                           decimal, grouping=True)
