@@ -66,7 +66,7 @@ class DashTestCase(unittest.TestCase):
         # encode it and pass it to parse
 
         expected_amount = np.array([-12.16,
-                                    120.2,
+                                    120.0,
                                     -10.0]).astype(np.float64)
         expected_sender = ["DE39500105174461799382",
                            "DE63500105173984825797",
