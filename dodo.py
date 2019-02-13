@@ -7,7 +7,7 @@ import os.path
 
 def task_test():
     return {
-        'actions': ['pytest'],
+        'actions': [['pytest', "--cov=./", "--doctest-modules"]],
         'verbosity': 2
     }
 
