@@ -9,6 +9,6 @@ def my_dummy_function(number):
     Dummy function that doubles its input.
 
     >>> my_dummy_function(2)
-    4
+    5
     """
     return 2*number
