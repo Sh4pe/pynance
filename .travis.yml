@@ -14,8 +14,6 @@ install:
   - pip install -r requirements.txt
 script:
   - pytest --cov=./ --doctest-modules
-  - doit dash_app
-  - doit graphviz
 
 after_success:
   - codecov
