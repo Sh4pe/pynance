@@ -10,3 +10,8 @@ codecov
 # The latest version of doit supporting Python 2 is 0.29.0
 doit==0.29.0; python_version < '3.0'
 doit; python_version >= '3.0'
+
+pytest==4.0.0; python_version < '3.0'
+pytest-cov==2.6.0; python_version < '3.0'
+pytest==4.2.0; python_version >= '3.0'
+pytest-cov==2.6.1; python_version >= '3.0'

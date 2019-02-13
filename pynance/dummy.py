@@ -3,6 +3,7 @@
 This is just a placeholder.
 """
 
+
 def my_dummy_function(number):
     """
     Dummy function that doubles its input.
