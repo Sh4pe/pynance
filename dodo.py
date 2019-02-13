@@ -4,17 +4,6 @@ import sys
 import glob
 import os.path
 
-# def task_test():
-#     def integration_test_action():
-#         # printing to stderr so that doit does not capture the output
-#         print("### Integration tests are not yet implemented ###", file=sys.stderr)
-
-#     for kind, action in [('unit', ['coverage run unittests.py']), ('integration', [integration_test_action])]:
-#         yield {
-#             'name': kind,
-#             'actions': action
-#         }
-
 
 def task_test():
     return {
