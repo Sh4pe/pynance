@@ -1,5 +1,7 @@
 pandas
 numpy
+pytest
+pytest-cov
 codecov
 dash
 dash-core-components
