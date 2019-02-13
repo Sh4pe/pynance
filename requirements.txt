@@ -1,7 +1,7 @@
 pandas
 numpy
 pytest
-pytest-cov
+pytest-cov==2.6.0
 codecov
 dash
 dash-core-components
