@@ -13,4 +13,4 @@ install:
   - pip install -r requirements.txt
 
 test_script:
-  - pytest --cov=./ --doctest-modules
+  - doit test
