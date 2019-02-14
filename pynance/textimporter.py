@@ -3,7 +3,6 @@ import codecs
 
 import pandas as pd
 import numpy as np
-from numpy import array
 
 
 def read_csv(filepath_or_buffer, description):
@@ -100,15 +99,6 @@ def amounts_to_balances(amounts, final_balance):
     --------
     list of float
         values of the total balance after each transaction
-
-    EXAMPLES:
-    ---------
-
-    >>> amounts_to_balances(array([1., 1., 1]), 3.)
-    array([1., 2., 3.])
-
-    >>> amounts_to_balances(array([1., 1., 1.]), 0.)
-    array([-2., -1.,  0.])
     """
 
     accumulated = np.cumsum(np.array(amounts, dtype=float))
