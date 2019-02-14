@@ -22,7 +22,6 @@ class DKBFormatters():
 
     @classmethod
     def to_datetime64(cls, datestring):
-        # TODO: there is probably a better way to convert it
         date = datetime.datetime.strptime(datestring, "%d.%m.%Y")
         return np.datetime64(date.strftime('%Y-%m-%d'))
 
@@ -36,7 +35,6 @@ class DKBFormatters():
         if not numberstring:
             return np.nan
         else:
-            # TODO: use some builtin package, maybe locale for this
             return float(numberstring.replace(".", "").replace(",", "."))
 
     @classmethod

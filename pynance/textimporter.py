@@ -169,9 +169,6 @@ class CsvFileDescription():
 
         """
 
-        # TODO: check if we need pandas.io.common.get_filepath_or_buffer
-        # to support filepaths, urls, buffers...
-
         def read_from_buffer(buffer):
 
             for line in buffer.readlines():
