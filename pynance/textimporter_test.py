@@ -391,6 +391,8 @@ class CsvImportTestCase(unittest.TestCase):
         for i in range(len(amounts)-1):
             assert_almost_equal(balances[i+1], balances[i]+amounts[i+1])
 
+        self.assertEqual(balances[-1], final_balance)
+
 
 def test_suite():
     suite = unittest.makeSuite(CsvImportTestCase)
