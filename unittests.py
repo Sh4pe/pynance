@@ -6,6 +6,7 @@ import doctest
 
 import pynance.dummy_test
 import pynance.textimporter_test
+import pynance.textimporter_balance_test
 import pynance.dash_viz.plot_flow_test
 import pynance.parser_test
 
@@ -43,6 +44,7 @@ def test_suite():
     suite = unittest.TestSuite()
     suite.addTests(pynance.dummy_test.test_suite())
     suite.addTests(pynance.textimporter_test.test_suite())
+    suite.addTests(pynance.textimporter_balance_test.test_suite())
     suite.addTests(pynance.dash_viz.plot_flow_test.test_suite())
     suite.addTests(pynance.parser_test.test_suite())
 
