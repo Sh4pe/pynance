@@ -6,4 +6,5 @@ docs/graphs/png/*.png
 .doit.db.*
 pynance/*.pyc
 .pytest_cache
+/.hypothesis
 .coverage

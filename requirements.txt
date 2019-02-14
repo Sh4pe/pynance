@@ -1,9 +1,11 @@
 pandas
 numpy
-codecov
 dash
 dash-core-components
 dash-html-components
+
+hypothesis
+codecov
 
 # The latest version of doit supporting Python 2 is 0.29.0
 doit==0.29.0; python_version < '3.0'
