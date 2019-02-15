@@ -13,7 +13,7 @@ from numpy.testing import assert_array_equal
 from .plot_flow import app, csvtype_string2description, update_output,\
     onselect_csvtype, update_csvtype_store, make_cashflow_figure, \
     parse_contents
-from ..textimporter import SupportedCsvTypes
+from ..dkb import SupportedCsvTypes
 
 
 class DashTestCase(unittest.TestCase):
