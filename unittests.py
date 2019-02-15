@@ -4,7 +4,6 @@ from __future__ import print_function, absolute_import
 import unittest
 import doctest
 
-import pynance.dummy_test
 import pynance.textimporter_test
 import pynance.dash_viz.plot_flow_test
 import pynance.database_test
