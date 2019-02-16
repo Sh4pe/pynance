@@ -2,14 +2,16 @@ from __future__ import absolute_import, print_function
 
 import unittest
 import os.path
+import io
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, \
+    assert_array_almost_equal, assert_almost_equal
 
-from .textimporter import read_csv, SupportedCsvTypes, \
+from .textimporter import read_csv, \
     COLUMNS, UnsupportedCsvFormatException, \
-    CsvFileDescription, DKBFormatters, \
-    DKBCsvDialect
+    CsvFileDescription, amounts_to_balances
+from .dkb import SupportedCsvTypes, DKBFormatters, DKBCsvDialect
 
 
 class CsvImportTestCase(unittest.TestCase):
@@ -35,6 +37,7 @@ class CsvImportTestCase(unittest.TestCase):
 
     # test construction of an invalid CsvFileDescription
     def test_create_invalid_CsvFileDescription(self):
+
         def construction_missing_formatter():
             bad_formatter_map = DKBFormatters.formatter_map()
             del bad_formatter_map[str]
@@ -48,7 +51,10 @@ class CsvImportTestCase(unittest.TestCase):
                 csv_dialect=DKBCsvDialect(),
                 formatters=bad_formatter_map,
                 skiprows=6,
-                encoding="iso-8859-1")
+                encoding="iso-8859-1",
+                total_balance_re_pattern=r'(?<=Kontostand vom '
+                                         r'\d{2}.\d{2}.\d{4}:";")'
+                                         r'(\d+,\d+)')
         self.assertRaises(AssertionError, construction_missing_formatter)
 
     # tests DKB
@@ -243,6 +249,34 @@ class CsvImportTestCase(unittest.TestCase):
                     "FRISCHEM.ABC",
                     "REWE Markt GmbH ZW"]
         self.assertListEqual(expected, list(result_df["text"].values))
+
+    def test_dkbvisa_StringIO_import(self):
+        csv_desc = SupportedCsvTypes.DKBVisa
+
+        content = u"""
+            "Kreditkarte:";"3546********6546";
+
+            "Zeitraum:";"letzten 60 Tage";
+            "Saldo:";"465,33 EUR";
+            "Datum:";"28.01.2019";
+            """\
+            u'"Umsatz abgerechnet und nicht im Saldo enthalten";'\
+            u'"Wertstellung";"Belegdatum";"Beschreibung";"Betrag'\
+            u' (EUR)";"Ursprunglicher Betrag";'\
+            u"""
+            "Ja";"18.01.2019";"17.01.2019";"SPORT";"-65,00";"";
+            "Ja";"16.01.2019";"15.01.2019";"FRISCHEM.ABC";"-14,33";"";
+            "Ja";"14.01.2019";"11.01.2019";"FRISCHEM.ABC";"-11,42";"";
+            "Ja";"14.01.2019";"12.01.2019";"REWE Markt GmbH ZW";"-126,45";"";
+            """
+        header_stream = io.StringIO(content)
+        df = read_csv(header_stream, csv_desc)
+
+        expected = ["SPORT",
+                    "FRISCHEM.ABC",
+                    "FRISCHEM.ABC",
+                    "REWE Markt GmbH ZW"]
+        self.assertListEqual(expected, df["text"].tolist())
 
 
 def test_suite():

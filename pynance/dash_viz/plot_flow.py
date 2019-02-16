@@ -9,7 +9,8 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 
-from pynance.textimporter import read_csv, SupportedCsvTypes
+from pynance.textimporter import read_csv
+from pynance.dkb import SupportedCsvTypes
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -91,10 +92,11 @@ def parse_contents(contents, csvtype_str):
         byte_decoded = base64.b64decode(content_string)
 
         encoding = csvtype_desc.encoding
-        string_io = io.StringIO(byte_decoded.decode(encoding))
+        decoded = byte_decoded.decode(encoding)
     except:
         raise IOError("Could not decode file.")
 
+    string_io = io.StringIO(decoded)
     return read_csv(string_io, csvtype_desc)
 
 

@@ -10,7 +10,7 @@ import numpy as np
 from hypothesis import given
 from hypothesis.strategies import datetimes, decimals
 
-from .textimporter import DKBFormatters
+from .dkb import DKBFormatters
 
 
 class ParserTestCase(unittest.TestCase):
