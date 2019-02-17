@@ -13,4 +13,4 @@ install:
   - pip install -r requirements.txt
 
 test_script:
-  doit test
+  - doit test
