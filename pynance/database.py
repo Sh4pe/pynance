@@ -1,5 +1,18 @@
 import sqlite3
 
+
+    
+def exists_table(conn, table_name):
+    """
+    Returns True if and only if 'table_name' is an existing table.
+    """
+
+    result = conn.execute(
+        'select count(*) from sqlite_master where type="table" and name="{}"'.format(table_name)
+    ).fetchall()
+    return result[0][0] == 1
+        
+
 class LowLevelConnection(object):
     """
     Class that handles low-level database connection. Makes sure the expected table strucutre exists.
@@ -48,16 +61,18 @@ class LowLevelConnection(object):
 
         connection = self._get_db_conn()
         with connection:
-            connection.execute('CREATE TABLE IF NOT EXISTS {} (version INTEGER)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
-            connection.execute('INSERT INTO {} VALUES (1)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
+            if not exists_table(connection, LowLevelConnection.TABLE_SCHEMA_VERSION):
+                connection.execute('CREATE TABLE IF NOT EXISTS {} (version INTEGER)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
+                connection.execute('INSERT INTO {} VALUES (1)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
 
-            connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(
-                LowLevelConnection.TABLE_TRANSACTIONS,
-                ', '.join(
-                    [LowLevelConnection.TABLE_TRANSACTIONS_ID] + LowLevelConnection.TABLE_TRANSACTIONS_FIELDS
-                )
-            ))
-            connection.execute('CREATE INDEX date_index ON {} ({})'.format(LowLevelConnection.TABLE_TRANSACTIONS, 'date'))
+            if not exists_table(connection, LowLevelConnection.TABLE_TRANSACTIONS):
+                connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(
+                    LowLevelConnection.TABLE_TRANSACTIONS,
+                    ', '.join(
+                        [LowLevelConnection.TABLE_TRANSACTIONS_ID] + LowLevelConnection.TABLE_TRANSACTIONS_FIELDS
+                    )
+                ))
+                connection.execute('CREATE INDEX date_index ON {} ({})'.format(LowLevelConnection.TABLE_TRANSACTIONS, 'date'))
     
     def __enter__(self):
         self.conn = self._get_db_conn()

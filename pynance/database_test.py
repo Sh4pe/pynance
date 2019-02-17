@@ -46,6 +46,17 @@ class LowLevelConnectionTestCase(unittest.TestCase):
                     [(1,)],
                     cursor.execute('select count(*) from {}'.format(LowLevelConnection.TABLE_SCHEMA_VERSION)).fetchall()
                 )
+    
+    def test_works_on_same_database_twice(self):
+        with TemporaryDirectory() as tmp_dir:
+            db_name = os.path.join(tmp_dir, 'test.db')
+            with LowLevelConnection(1, db_name) as _:
+                pass
+            with LowLevelConnection(1, db_name) as conn:
+                result = conn \
+                    .execute('select count(*) from {}'.format(LowLevelConnection.TABLE_SCHEMA_VERSION)) \
+                    .fetchall()
+                self.assertEqual(1, result[0][0])
 
 class InsertTableTestCase(unittest.TestCase):
 
