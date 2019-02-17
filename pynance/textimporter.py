@@ -91,7 +91,9 @@ def amounts_to_balances(amounts, final_balance):
     PARAMS:
     -------
     amounts : iterable of float
-        amount transferred for each transaction
+        amount transferred for each transaction. It must be ordered,
+        such that the latest performed transaction is *first* in the
+        list
     final_balance : float
         total value of the balance after the last transaction
 
@@ -101,8 +103,8 @@ def amounts_to_balances(amounts, final_balance):
         values of the total balance after each transaction
     """
 
-    accumulated = np.cumsum(np.array(amounts, dtype=float))
-    return accumulated - accumulated[-1] + final_balance
+    accumulated = np.cumsum(np.array(amounts[::-1], dtype=float))[::-1]
+    return accumulated - accumulated[0] + final_balance
 
 
 class CsvFileDescription():

@@ -155,7 +155,7 @@ class DashTestCase(unittest.TestCase):
         res_chart = result_fig._data[0]
 
         assert_array_equal(balances, res_chart['y'])
-        self.assertEqual(final_balance, res_chart['y'][-1])
+        self.assertEqual(final_balance, res_chart['y'][0])
 
     def test_update_output_None(self):
         self.assertFalse(update_bar_chart(None, "") is None)
