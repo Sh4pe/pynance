@@ -5,7 +5,8 @@ from tempfile import mkdtemp
 import sqlite3
 
 from pynance.database import LowLevelConnection, InsertTable
-from pynance.textimporter import read_csv, SupportedCsvTypes
+from pynance.textimporter import read_csv
+from pynance.dkb import SupportedCsvTypes
 
 class TemporaryDirectory(object):
     def __enter__(self):
