@@ -12,8 +12,9 @@ from numpy.testing import assert_array_equal
 
 from .plot_flow import app, csvtype_string2description, update_bar_chart,\
     onselect_csvtype, update_csvtype_store, make_cashflow_figure, \
-    parse_contents
+    make_line_figure, parse_contents
 from ..dkb import SupportedCsvTypes
+from ..textimporter import amounts_to_balances
 
 
 class DashTestCase(unittest.TestCase):
@@ -80,7 +81,7 @@ class DashTestCase(unittest.TestCase):
         self.assertListEqual(expected_sender,
                              list(result_df["sender_account"].values))
 
-    def test_make_figure(self):
+    def test_make_bar_chart(self):
         amounts = [12.34,
                    -20,
                    0,
@@ -128,6 +129,33 @@ class DashTestCase(unittest.TestCase):
         # total number of y values should be the number
         # of values in amounts
         self.assertEqual(len(all_y_values), len(amounts))
+
+    def test_make_balance_line_chart(self):
+        amounts = [12.34,
+                   -20,
+                   0,
+                   456.32]
+        dates = ["2018-10-02",
+                 "2018-12-03",
+                 "2019-01-22",
+                 "2019-02-27"]
+        texts = ["payback 1",
+                 "text2",
+                 "cash text",
+                 "your money"]
+
+        final_balance = 1000.00
+
+        balances = amounts_to_balances(amounts, final_balance)
+
+        df = pd.DataFrame([{"total_balance": b, "date": d, "text": t}
+                           for b, d, t in zip(balances, dates, texts)])
+
+        result_fig = make_line_figure(df)
+        res_chart = result_fig._data[0]
+
+        assert_array_equal(balances, res_chart['y'])
+        self.assertEqual(final_balance, res_chart['y'][-1])
 
     def test_update_output_None(self):
         self.assertFalse(update_bar_chart(None, "") is None)

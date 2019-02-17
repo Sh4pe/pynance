@@ -81,6 +81,13 @@ class CsvBalanceImportTestCase(unittest.TestCase):
 
         self.assertEqual(expected_balance, balance)
 
+    def test_dkbcash_final_balance(self):
+        dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
+        final_balance = dkb_cash_sample_df["total_balance"].tolist()[-1]
+        expected_balance = 1248.54
+
+        self.assertEqual(expected_balance, final_balance)
+
     def test_dkbvisa_balance_regex_match(self):
         dummyfile_dkbvisa_small = os.path.join("pynance",
                                                "test_data",
@@ -130,6 +137,14 @@ class CsvBalanceImportTestCase(unittest.TestCase):
         self.assertRaises(UnsupportedCsvFormatException, parse_invald_header)
 
     def test_amounts_to_balances1(self):
+        amounts = np.array([1.0, 1.0, 1.0, 1.0])
+        final_balance = 4.0
+        expected_balances = np.array([1.0, 2.0, 3.0, 4.0])
+
+        balances = amounts_to_balances(amounts, final_balance)
+        assert_array_almost_equal(expected_balances, balances)
+
+    def test_amounts_to_balances2(self):
         amounts = np.array([-12.23, 9.00, 453.23, -232.32])
         final_balance = 221.32
         expected_balances = np.array([-8.59, 0.41, 453.64, 221.32])
@@ -137,7 +152,7 @@ class CsvBalanceImportTestCase(unittest.TestCase):
         balances = amounts_to_balances(amounts, final_balance)
         assert_array_almost_equal(expected_balances, balances)
 
-    def test_amounts_to_balances2(self):
+    def test_amounts_to_balances3(self):
         np.random.seed(0)
         amounts = np.random.random(100)*1000 - np.random.randint(300, 500)
         final_balance = np.random.random()*10000
