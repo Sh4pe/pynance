@@ -40,7 +40,6 @@ def doc_test_suite():
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTests(pynance.dummy_test.test_suite())
     suite.addTests(pynance.textimporter_test.test_suite())
     suite.addTests(pynance.dash_viz.plot_flow_test.test_suite())
     suite.addTests(pynance.database_test.test_suite())
