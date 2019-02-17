@@ -46,23 +46,18 @@ class LowLevelConnection(object):
         assert schema_version in LowLevelConnection.SUPPORTED_SCHEMA_VERSIONS
         self.db_file_name = db_file_name
 
-        with self._get_db_conn() as conn:
-            cursor = conn.cursor()
-            cursor.execute('BEGIN')
+        connection = self._get_db_conn()
+        with connection:
+            connection.execute('CREATE TABLE IF NOT EXISTS {} (version INTEGER)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
+            connection.execute('INSERT INTO {} VALUES (1)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
 
-            cursor.execute('CREATE TABLE IF NOT EXISTS {} (version INTEGER)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
-            cursor.execute('INSERT INTO {} VALUES (1)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
-
-            cursor.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(
+            connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(
                 LowLevelConnection.TABLE_TRANSACTIONS,
                 ', '.join(
                     [LowLevelConnection.TABLE_TRANSACTIONS_ID] + LowLevelConnection.TABLE_TRANSACTIONS_FIELDS
                 )
             ))
-            cursor.execute('CREATE INDEX date_index ON {} ({})'.format(LowLevelConnection.TABLE_TRANSACTIONS, 'date'))
-
-            cursor.execute('COMMIT')
-            conn.commit()
+            connection.execute('CREATE INDEX date_index ON {} ({})'.format(LowLevelConnection.TABLE_TRANSACTIONS, 'date'))
     
     def __enter__(self):
         self.conn = self._get_db_conn()
