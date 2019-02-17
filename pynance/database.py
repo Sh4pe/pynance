@@ -25,6 +25,18 @@ class LowLevelConnection(object):
         'tags TEXT'
     ]
 
+    def _get_db_conn(self):
+        """
+        Get the connection to the sqlite database. We use the 'DEFERRED' isolation level. This
+        is the default in Python 3 anyways, in Python 2 the default is autocommit mode. The DEFERRED
+        isolation level seems appropriate in this case. See also
+        * https://www.sqlite.org/lang_transaction.html
+        """
+        return sqlite3.connect(
+            self.db_file_name,
+            isolation_level = 'DEFERRED' 
+        )
+
     def __init__(self, schema_version, db_file_name):
         """
         Parameters:
@@ -34,9 +46,9 @@ class LowLevelConnection(object):
         assert schema_version in LowLevelConnection.SUPPORTED_SCHEMA_VERSIONS
         self.db_file_name = db_file_name
 
-        with sqlite3.connect(self.db_file_name) as conn:
+        with self._get_db_conn() as conn:
             cursor = conn.cursor()
-            cursor.execute('BEGIN TRANSACTION')
+            cursor.execute('BEGIN')
 
             cursor.execute('CREATE TABLE IF NOT EXISTS {} (version INTEGER)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
             cursor.execute('INSERT INTO {} VALUES (1)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
@@ -53,7 +65,7 @@ class LowLevelConnection(object):
             conn.commit()
     
     def __enter__(self):
-        self.conn = sqlite3.connect(self.db_file_name)
+        self.conn = self._get_db_conn()
         return self.conn
     
     def __exit__(self, _1, _2, _3):
