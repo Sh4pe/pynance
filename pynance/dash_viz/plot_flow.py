@@ -62,7 +62,15 @@ app.layout = html.Div([
             data=[],
         ),
         style={'height': 500},
-        id='my-graph'
+        id='graph_bar'
+    ),
+
+    dcc.Graph(
+        figure=go.Figure(
+            data=[],
+        ),
+        style={'height': 500},
+        id='graph_line'
     )
 ])
 
@@ -144,7 +152,20 @@ def make_cashflow_figure(df):
     return fig
 
 
-@app.callback(Output('my-graph', 'figure'),
+def make_line_figure(df):
+    """
+    """
+
+    lineplot = go.Scatter(x=df["date"],
+                          y=df["total_balance"])
+
+    fig = go.Figure(
+        data=[lineplot]
+    )
+    return fig
+
+
+@app.callback(Output('graph_bar', 'figure'),
               [Input('uploader', 'contents')],
               [State('csvtype', 'data')])
 def update_output(content, csvtype_str):
@@ -167,6 +188,33 @@ def update_output(content, csvtype_str):
     if content is not None:
         df = parse_contents(content, csvtype_str)
         return make_cashflow_figure(df)
+    else:
+        return go.Figure(data=[])
+
+
+@app.callback(Output('graph_line', 'figure'),
+              [Input('uploader', 'contents')],
+              [State('csvtype', 'data')])
+def update_line(content, csvtype_str):
+    """
+    Visualizes the raw data content of a file as a time-amount bar graph
+
+    Params:
+    -------
+    content: byte-like
+        undecoded csv file content
+    csvtype_str: str
+        name of a supported csv type, should be name of the attribute of
+        SupportedCsvTypes
+
+    Returns:
+    --------
+    Figure:
+        Bar chart figure, with time on x and amount on y
+    """
+    if content is not None:
+        df = parse_contents(content, csvtype_str)
+        return make_line_figure(df)
     else:
         return go.Figure(data=[])
 
