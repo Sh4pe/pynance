@@ -75,7 +75,7 @@ class SupportedCsvTypes():
         skiprows=6,
         encoding="iso-8859-1",
         total_balance_re_pattern=r'(?<=Kontostand vom \d{2}.\d{2}.\d{4}:";")'
-                                 r'(\d+,\d+)')
+                                 r'(.*)(?= EUR";)')
 
     DKBVisa = CsvFileDescription(
         column_map={
@@ -87,4 +87,4 @@ class SupportedCsvTypes():
         formatters=DKBFormatters.formatter_map(),
         skiprows=6,
         encoding="iso-8859-1",
-        total_balance_re_pattern=r'(?<=Saldo:";")(\d+,\d+)')
+        total_balance_re_pattern=r'(?<=Saldo:";")(.*)(?= EUR";)')
