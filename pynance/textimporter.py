@@ -4,6 +4,8 @@ import codecs
 import pandas as pd
 import numpy as np
 
+from .definitions import COLUMNS
+
 
 def read_csv(filepath_or_buffer, description):
     """
@@ -198,20 +200,3 @@ class UnsupportedCsvFormatException(IOError):
         a setting that does not fit the actual file
     """
     pass
-
-
-# STATIC DEFINITIONS below this line ################
-
-# see issue #5 and #6
-# use numpy types for numbers, because that's what pandas likes
-COLUMNS = {
-    "date": np.datetime64,
-    "sender_account": str,
-    "receiver_account": str,
-    "text": str,
-    "amount": np.float64,
-    "total_balance": np.float64,
-    "currency": str,
-    "category": str,
-    "tags": str,
-    "origin": str}
