@@ -108,15 +108,7 @@ class InsertTableTestCase(unittest.TestCase):
 def test_suite():
     "return the test suite"
 
-    suite = unittest.TestSuite()
-
-    suite.addTest(LowLevelConnectionTestCase('test_creates_database_file_if_not_exists'))
-    suite.addTest(LowLevelConnectionTestCase('test_opens_connection'))
-    suite.addTest(LowLevelConnectionTestCase('test_creates_expected_tables'))
-
-    suite.addTest(InsertTableTestCase('test_create_temp_table_table_exists'))
-    suite.addTest(InsertTableTestCase('test_create_temp_table_choses_other_table_if_exists'))
-    suite.addTest(InsertTableTestCase('test_it_removes_the_temporary_table'))
-    suite.addTest(InsertTableTestCase('test_it_works_with_dataframes_from_text_importer'))
+    suite = unittest.makeSuite(LowLevelConnectionTestCase)
+    suite.addTests(unittest.makeSuite(InsertTableTestCase))
 
     return suite
