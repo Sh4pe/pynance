@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from .plot_flow import app, csvtype_string2description, update_output,\
+from .plot_flow import app, csvtype_string2description, update_bar_chart,\
     onselect_csvtype, update_csvtype_store, make_cashflow_figure, \
     parse_contents
 from ..dkb import SupportedCsvTypes
@@ -130,7 +130,7 @@ class DashTestCase(unittest.TestCase):
         self.assertEqual(len(all_y_values), len(amounts))
 
     def test_update_output_None(self):
-        self.assertFalse(update_output(None, "") is None)
+        self.assertFalse(update_bar_chart(None, "") is None)
 
     def test_update_output(self):
         expected_amount = np.array([-12.16,
@@ -139,7 +139,7 @@ class DashTestCase(unittest.TestCase):
 
         bytestr = self._read_sample_file_like_uploaded()
 
-        response = update_output(bytestr, "DKBCash")
+        response = update_bar_chart(bytestr, "DKBCash")
         response_dict = json.loads(response.data.decode())
 
         res_charts = response_dict["response"]["props"]["figure"]["data"]

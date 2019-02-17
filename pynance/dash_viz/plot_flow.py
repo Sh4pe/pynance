@@ -154,6 +154,18 @@ def make_cashflow_figure(df):
 
 def make_line_figure(df):
     """
+    Take a transactions dataframe and make a figure out of it, which
+    shows the total balance as a function of time
+
+    Params:
+    -------
+    df: pandas.Dataframe
+        Dataframe which must have the columns date and total_balance
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+        Figure with the visualized data
     """
 
     lineplot = go.Scatter(x=df["date"],
@@ -168,7 +180,7 @@ def make_line_figure(df):
 @app.callback(Output('graph_bar', 'figure'),
               [Input('uploader', 'contents')],
               [State('csvtype', 'data')])
-def update_output(content, csvtype_str):
+def update_bar_chart(content, csvtype_str):
     """
     Visualizes the raw data content of a file as a time-amount bar graph
 
@@ -197,7 +209,7 @@ def update_output(content, csvtype_str):
               [State('csvtype', 'data')])
 def update_line(content, csvtype_str):
     """
-    Visualizes the raw data content of a file as a time-amount bar graph
+    Visualizes the raw data content of a file as a time-amount line graph
 
     Params:
     -------
