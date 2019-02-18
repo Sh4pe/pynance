@@ -54,7 +54,8 @@ class CsvImportTestCase(unittest.TestCase):
                 encoding="iso-8859-1",
                 total_balance_re_pattern=r'(?<=Kontostand vom '
                                          r'\d{2}.\d{2}.\d{4}:";")'
-                                         r'(\d+,\d+)')
+                                         r'(\d+,\d+)',
+                total_balance_formatter=DKBFormatters.to_float64)
         self.assertRaises(AssertionError, construction_missing_formatter)
 
     # tests DKB
@@ -257,7 +258,7 @@ class CsvImportTestCase(unittest.TestCase):
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
-            "Saldo:";"465,33 EUR";
+            "Saldo:";"465.33 EUR";
             "Datum:";"28.01.2019";
             """\
             u'"Umsatz abgerechnet und nicht im Saldo enthalten";'\

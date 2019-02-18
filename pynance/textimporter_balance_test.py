@@ -111,7 +111,7 @@ class CsvBalanceImportTestCase(unittest.TestCase):
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
-            "Saldo:";"465,33 EUR";
+            "Saldo:";"465.33 EUR";
             "Datum:";"28.01.2019";
 
             "Umsatz abgerechnet und nicht im Saldo enthalte
@@ -128,7 +128,7 @@ class CsvBalanceImportTestCase(unittest.TestCase):
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
-            "BALANCE:";"465,33 EUR";
+            "BALANCE:";"465.33 EUR";
             "Datum:";"28.01.2019";
 
             "Umsatz abgerechnet und nicht im Saldo enthalte

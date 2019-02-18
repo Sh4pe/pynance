@@ -116,7 +116,8 @@ class CsvFileDescription():
                  formatters,
                  skiprows,
                  encoding,
-                 total_balance_re_pattern):
+                 total_balance_re_pattern,
+                 total_balance_formatter):
         """
         A description of a specific CSV file design.
         Typically a definition for a specific bank transaction CSV file
@@ -136,6 +137,9 @@ class CsvFileDescription():
             encoding of the csv file, e.g. 'utf-8' or 'iso-8859-1'
         total_balance_re_pattern : string
             regex expression, that matches for the final total balance
+        total_balance_formatter : function : string -> float
+            a function that is applied to the string matched by
+            total_balance_re_pattern and return the number
         """
 
         # check that for every type in COLUMN, there is a formatter
@@ -148,6 +152,7 @@ class CsvFileDescription():
         self.skiprows = skiprows
         self.encoding = encoding
         self.total_balance_re_pattern = total_balance_re_pattern
+        self.total_balance_formatter = total_balance_formatter
 
     def read_total_balance(self, filepath_or_buffer):
         """
@@ -178,8 +183,7 @@ class CsvFileDescription():
             for line in buffer.readlines():
                 match = re.search(self.total_balance_re_pattern, line)
                 if match:
-                    target_type = COLUMNS['total_balance']
-                    formatter = self.formatters[target_type]
+                    formatter = self.total_balance_formatter
                     return formatter(match.group(0))
 
             raise UnsupportedCsvFormatException(
