@@ -195,7 +195,7 @@ def update_bar_chart(content, csvtype_str):
     Returns:
     --------
     Figure:
-        Bar chart figure, with time on x and amount on y
+        Bar chart figure, with time on x and total balance on y
     """
     if content is not None:
         df = parse_contents(content, csvtype_str)
@@ -222,7 +222,7 @@ def update_line(content, csvtype_str):
     Returns:
     --------
     Figure:
-        Bar chart figure, with time on x and amount on y
+        Line figure, with time on x and amount on y
     """
     if content is not None:
         df = parse_contents(content, csvtype_str)
