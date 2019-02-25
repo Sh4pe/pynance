@@ -1,7 +1,8 @@
 import sqlite3
+import numpy as np
+from .definitions import COLUMNS
 
 
-    
 def exists_table(conn, table_name):
     """
     Returns True if and only if 'table_name' is an existing table.
@@ -12,6 +13,30 @@ def exists_table(conn, table_name):
     ).fetchall()
     return result[0][0] == 1
         
+def generate_sqlite_columns_definitions():
+    """
+    Converts definitions.COLUMNS into the column definitions of a sqlite table. By column definitions,
+    we mean the part of a CREATE TABLE statement that defines the columns:
+      
+      CREATE TABLE my_table_name (<column definitions here>)
+    
+    Returns the column definitions as string
+    """
+
+    type_lookup_dict = {
+        str: 'TEXT',
+        np.datetime64: 'TEXT',
+        np.float64: 'REAL'
+    }
+
+    def name_type_to_string(x):
+        # print('foooo: {}'.format(x))
+        col_name, col_type = x
+        if col_type not in type_lookup_dict:
+            raise ValueError("Don't know which sqlite type '{}' is".format(col_type))
+        return '{} {}'.format(col_name, type_lookup_dict[col_type])        
+
+    return ', '.join(map(name_type_to_string, COLUMNS.items()))
 
 class LowLevelConnection(object):
     """
@@ -25,18 +50,6 @@ class LowLevelConnection(object):
     TABLE_SCHEMA_VERSION = 'schema'
     TABLE_TRANSACTIONS = 'transactions'
     TABLE_TRANSACTIONS_ID = 'id INTEGER PRIMARY KEY'
-    TABLE_TRANSACTIONS_FIELDS = [
-        'imported_at INTEGER', # unix timestamp
-        'date TEXT', # format: YYYY-MM-DD
-        'sender_account TEXT', 
-        'receiver_account TEXT',
-        'text TEXT',
-        'amount REAL',
-        'total_balance REAL',
-        'currency TEXT',
-        'category TEXT',
-        'tags TEXT'
-    ]
 
     def _get_db_conn(self):
         """
@@ -66,11 +79,10 @@ class LowLevelConnection(object):
                 connection.execute('INSERT INTO {} VALUES (1)'.format(LowLevelConnection.TABLE_SCHEMA_VERSION))
 
             if not exists_table(connection, LowLevelConnection.TABLE_TRANSACTIONS):
-                connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(
+                connection.execute('CREATE TABLE IF NOT EXISTS {} ({}, {})'.format(
                     LowLevelConnection.TABLE_TRANSACTIONS,
-                    ', '.join(
-                        [LowLevelConnection.TABLE_TRANSACTIONS_ID] + LowLevelConnection.TABLE_TRANSACTIONS_FIELDS
-                    )
+                    LowLevelConnection.TABLE_TRANSACTIONS_ID,
+                    generate_sqlite_columns_definitions()
                 ))
                 connection.execute('CREATE INDEX date_index ON {} ({})'.format(LowLevelConnection.TABLE_TRANSACTIONS, 'date'))
     
@@ -100,7 +112,10 @@ class InsertTable(object):
             go_on = False
             table_name = 'insert_df_{}'.format(i)
             try:
-                cursor.execute('CREATE TEMPORARY TABLE {} ({})'.format( table_name, ', '.join(LowLevelConnection.TABLE_TRANSACTIONS_FIELDS)))
+                cursor.execute('CREATE TEMPORARY TABLE {} ({})'.format( 
+                    table_name, 
+                    generate_sqlite_columns_definitions()
+                ))
             except sqlite3.OperationalError:
                 go_on = True
                 i += 1

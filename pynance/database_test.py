@@ -4,7 +4,8 @@ import shutil
 from tempfile import mkdtemp
 import sqlite3
 
-from pynance.database import LowLevelConnection, InsertTable
+from pynance.database import generate_sqlite_columns_definitions, \
+    LowLevelConnection, InsertTable
 from pynance.textimporter import read_csv
 from pynance.dkb import SupportedCsvTypes
 
@@ -15,6 +16,20 @@ class TemporaryDirectory(object):
     
     def __exit__(self, _1, _2, _3):
         shutil.rmtree(self.dir)
+
+class ColumnsDefinitionsTestCase(unittest.TestCase):
+    def test_it_produces_valid_string(self):
+        result = generate_sqlite_columns_definitions()
+        self.assertEqual(type(result), str)
+        self.assertTrue(len(result) > 0)
+    
+    def test_it_produces_valid_sql_types(self):
+        with TemporaryDirectory() as tmp_dir:
+            conn = sqlite3.connect(os.path.join(tmp_dir, 'test.db'))
+            with conn:
+                column_definitions = generate_sqlite_columns_definitions()
+                conn.execute('CREATE TABLE test ({})'.format(column_definitions))
+
 
 class LowLevelConnectionTestCase(unittest.TestCase):
     def test_creates_database_file_if_not_exists(self):
