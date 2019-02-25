@@ -129,12 +129,3 @@ class InsertTableTestCase(unittest.TestCase):
 
         run_test(os.path.join('pynance', 'test_data', 'dkb_cash_sample.csv'), SupportedCsvTypes.DKBCash)
         run_test(os.path.join('pynance', 'test_data', 'dkb_visa_sample.csv'), SupportedCsvTypes.DKBVisa)
-
-
-def test_suite():
-    "return the test suite"
-
-    suite = unittest.makeSuite(LowLevelConnectionTestCase)
-    suite.addTests(unittest.makeSuite(InsertTableTestCase))
-
-    return suite
