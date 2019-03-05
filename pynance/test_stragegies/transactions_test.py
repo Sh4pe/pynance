@@ -27,8 +27,8 @@ class DataframeTestCase(unittest.TestCase):
 
     @given(df=t.dataframe(min_size = 10))
     def test_respects_min_size(self, df):
-        self.assertTrue(df.size >= 10)
+        self.assertGreaterEqual(len(df), 10)
 
-    @given(df=t.dataframe(max_size = 10))
-    def test_respects_max_size(self):
-        self.assertTrue(df.size <= 10)
+    @given(t.dataframe(max_size = 10))
+    def test_respects_max_size(self, df):
+        self.assertLessEqual(len(df), 10)

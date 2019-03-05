@@ -12,26 +12,24 @@ ALPHABET = list(map(str, 'abcdefghijklmnopqrstuvwzyz ABCDEFGHIJKLMNOPQRSTUVWZYZ0
 
 @st.composite
 def single_transaction(draw, min_date=None, max_date=None):
+
+    # As a performance optimization, we don't generate each column individually and reuse
+    # already generated values. If we don't do this, test generation is too slow and
+    # Hypothesis' HealthChecks make the tests fail
+    d = draw(st.dates(min_value=min_date, max_value=max_date))
+    text = draw(st.text(alphabet=ALPHABET))
+    floats = draw(st.floats(min_value=0.01, max_value=10000000))
+    currency = draw(st.sampled_from(KNOWN_CURRENCIES))
+
+    return (d, text, text, text, floats, floats, currency, text, text, text)
+
+@st.composite
+def dataframe(draw, min_size=0, max_size=None, min_date=None, max_date=None):
     if not min_date:
         min_date = datetime.date(1000,1,1)
     if not max_date:
         max_date = datetime.date(9999,12,31)
 
-    date = np.datetime64(draw(st.dates(min_value=min_date, max_value=max_date)))
-    sender_account = draw(st.text(alphabet=ALPHABET))
-    receiver_account = str(draw(st.text(alphabet=ALPHABET)))
-    text = str(draw(st.text(alphabet=ALPHABET)))
-    amount = draw(st.floats(min_value=0.01, max_value=10000000))
-    total_balance = draw(st.floats(min_value=0.01, max_value=10000000))
-    currency = str(draw(st.sampled_from(KNOWN_CURRENCIES)))
-    category = str(draw(st.text(alphabet=ALPHABET)))
-    tags = str(draw(st.text(alphabet=ALPHABET)))
-    origin = str(draw(st.text(alphabet=ALPHABET)))
-
-    return (date, sender_account, receiver_account, text, amount, total_balance, currency, category, tags, origin)
-
-@st.composite
-def dataframe(draw, min_size=0, max_size=None, min_date=None, max_date=None):
     elements = draw(st.lists(
         single_transaction(min_date=min_date, max_date=max_date),
          min_size=min_size,
@@ -64,5 +62,4 @@ def dataframe(draw, min_size=0, max_size=None, min_date=None, max_date=None):
         'currency': currencies,
         'category': categories,
         'tags': tagss,
-        'origin': origins
-    })
+        'origin': origins })
