@@ -1,3 +1,7 @@
+"""
+Explain the classes briefly. Elaborate on Storage
+"""
+
 import sqlite3
 import numpy as np
 from .definitions import COLUMNS
@@ -30,7 +34,6 @@ def generate_sqlite_columns_definitions():
     }
 
     def name_type_to_string(x):
-        # print('foooo: {}'.format(x))
         col_name, col_type = x
         if col_type not in type_lookup_dict:
             raise ValueError("Don't know which sqlite type '{}' is".format(col_type))
@@ -143,3 +146,29 @@ class InsertTable(object):
         self.conn.cursor().execute('DROP TABLE {}.{}'.format(
             self.temp_table_schema, self.temp_table_name
         ))
+
+
+class Storage(object):
+    
+    def __init__(self, db_file):
+        pass
+    
+    @classmethod
+    def validate_dataframe_shape(cls, data_frame):
+        """
+        asserts that the correct columns are present. Tollerates that additional columns are present
+        """
+        pass
+    
+    def append_dataframe(self, data_frame):
+        """
+        asserts that the shape of the dataframe is correct
+        returns the part of the dataframe that is new. This part has also an ID column
+        """
+        pass
+    
+    def load_dataframe(self):
+        """
+        loads from db. contains ID column
+        """
+        pass

@@ -129,3 +129,30 @@ class InsertTableTestCase(unittest.TestCase):
 
         run_test(os.path.join('pynance', 'test_data', 'dkb_cash_sample.csv'), SupportedCsvTypes.DKBCash)
         run_test(os.path.join('pynance', 'test_data', 'dkb_visa_sample.csv'), SupportedCsvTypes.DKBVisa)
+
+
+class StorageTestCase(unittest.TestCase):
+
+    def test_validate_dataframe_shape_complains_when_columns_are_missing(self):
+        "Assertion when columns are missing"
+        pass
+
+    def test_validate_dataframe_shape_accepts_aditional_columns(self):
+        "Does not compain when aditional columns are present"
+        pass
+    
+    def test_append_dataframe_rejects_invalid_dataframes(self):
+        pass
+
+    def test_append_dataframe_returns_new_parts_with_id(self):
+        pass
+
+    def test_append_dataframe_returned_ids_are_the_same_as_in_load_dataframe(self):
+        pass
+
+    def test_append_dataframe_duplicats_are_left_out(self):
+        pass
+    
+    def test_load_dataframe_works_with_new_storage_instance(self):
+        "implies new conn etc..."
+        pass
