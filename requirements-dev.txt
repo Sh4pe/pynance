@@ -19,3 +19,4 @@ pytest-cov==2.6.1; python_version >= '3.0'
 
 pylint
 pep8
+autopep8
