@@ -1,7 +1,7 @@
 import unittest
 import os.path
 import shutil
-from tempfile import mkdtemp
+from tempfile import TemporaryDirectory, TemporaryFile
 import sqlite3
 
 from pynance.database import generate_sqlite_columns_definitions, \
@@ -9,26 +9,21 @@ from pynance.database import generate_sqlite_columns_definitions, \
 from pynance.textimporter import read_csv
 from pynance.dkb import SupportedCsvTypes
 
-class TemporaryDirectory(object):
-    def __enter__(self):
-        self.dir = mkdtemp()
-        return self.dir
-    
-    def __exit__(self, _1, _2, _3):
-        shutil.rmtree(self.dir)
 
 class ColumnsDefinitionsTestCase(unittest.TestCase):
     def test_it_produces_valid_string(self):
         result = generate_sqlite_columns_definitions()
         self.assertEqual(type(result), str)
         self.assertTrue(len(result) > 0)
-    
+
     def test_it_produces_valid_sql_types(self):
         with TemporaryDirectory() as tmp_dir:
-            conn = sqlite3.connect(os.path.join(tmp_dir, 'test.db'))
-            with conn:
-                column_definitions = generate_sqlite_columns_definitions()
-                conn.execute('CREATE TABLE test ({})'.format(column_definitions))
+            tmp_file = os.path.join(tmp_dir, 'test.db')
+            conn = sqlite3.connect(tmp_file)
+            column_definitions = generate_sqlite_columns_definitions()
+            query = 'CREATE TABLE test ({})'.format(column_definitions)
+            conn.execute(query)
+            conn.close()
 
 
 class LowLevelConnectionTestCase(unittest.TestCase):
@@ -39,29 +34,31 @@ class LowLevelConnectionTestCase(unittest.TestCase):
             with LowLevelConnection(1, db_file) as _:
                 pass
             self.assertTrue(os.path.exists(db_file))
-    
+
     def test_opens_connection(self):
         with TemporaryDirectory() as tmp_dir:
             with LowLevelConnection(1, os.path.join(tmp_dir, 'test.db')) as conn:
                 self.assertIsNotNone(conn)
-    
+
     def test_creates_expected_tables(self):
         with TemporaryDirectory() as tmp_dir:
             with LowLevelConnection(1, os.path.join(tmp_dir, 'test.db')) as conn:
                 cursor = conn.cursor()
                 tables = set(map(
                     lambda x: x[0],
-                    cursor.execute('select name from sqlite_master where type="table"').fetchall()
+                    cursor.execute(
+                        'select name from sqlite_master where type="table"').fetchall()
                 ))
                 self.assertEqual(
                     tables,
-                    set([LowLevelConnection.TABLE_SCHEMA_VERSION,LowLevelConnection.TABLE_TRANSACTIONS
-                ]))
+                    set([LowLevelConnection.TABLE_SCHEMA_VERSION, LowLevelConnection.TABLE_TRANSACTIONS
+                         ]))
                 self.assertEqual(
                     [(1,)],
-                    cursor.execute('select count(*) from {}'.format(LowLevelConnection.TABLE_SCHEMA_VERSION)).fetchall()
+                    cursor.execute(
+                        'select count(*) from {}'.format(LowLevelConnection.TABLE_SCHEMA_VERSION)).fetchall()
                 )
-    
+
     def test_works_on_same_database_twice(self):
         with TemporaryDirectory() as tmp_dir:
             db_name = os.path.join(tmp_dir, 'test.db')
@@ -73,6 +70,7 @@ class LowLevelConnectionTestCase(unittest.TestCase):
                     .fetchall()
                 self.assertEqual(1, result[0][0])
 
+
 class InsertTableTestCase(unittest.TestCase):
 
     def test_create_temp_table_table_exists(self):
@@ -81,17 +79,19 @@ class InsertTableTestCase(unittest.TestCase):
                 table_schema, table_name = InsertTable.create_temp_table(conn)
                 # Fails if and only if table does not exist
                 conn.cursor().execute('select count(*) from {}.{}'.format(table_schema, table_name))
-    
+
     def test_create_temp_table_choses_other_table_if_exists(self):
         with TemporaryDirectory() as tmp_dir:
             with LowLevelConnection(1, os.path.join(tmp_dir, 'test.db')) as conn:
                 conn.cursor().execute('CREATE TEMPORARY TABLE insert_df_0 (id INT)')
                 table_schema, table_name = InsertTable.create_temp_table(conn)
                 self.assertEqual(table_schema, 'temp')
-                self.assertEqual(table_name, 'insert_df_1', 'expected table creation to fail exactly the first time')
-    
+                self.assertEqual(
+                    table_name, 'insert_df_1', 'expected table creation to fail exactly the first time')
+
     def test_it_removes_the_temporary_table(self):
-        test_data_frame = read_csv(os.path.join('pynance', 'test_data', 'dkb_cash_sample.csv'), SupportedCsvTypes.DKBCash)
+        test_data_frame = read_csv(os.path.join(
+            'pynance', 'test_data', 'dkb_cash_sample.csv'), SupportedCsvTypes.DKBCash)
         # TODO: get rid of the 'drop' here
         test_data_frame = test_data_frame.drop(['origin'], axis=1)
         with TemporaryDirectory() as tmp_dir:
@@ -102,10 +102,12 @@ class InsertTableTestCase(unittest.TestCase):
                     conn.cursor().execute('select count(*) from {}'.format(insert_table_with_schema))
 
                 with InsertTable(conn, test_data_frame) as insert_table:
-                    insert_table_with_schema = '{}.{}'.format(insert_table[0], insert_table[1])
+                    insert_table_with_schema = '{}.{}'.format(
+                        insert_table[0], insert_table[1])
                     check_if_table_exists()
-                
-                self.assertRaises(sqlite3.OperationalError, check_if_table_exists)
+
+                self.assertRaises(sqlite3.OperationalError,
+                                  check_if_table_exists)
 
     def test_it_works_with_dataframes_from_text_importer(self):
         def run_test(csv_file, df_format):
@@ -115,7 +117,7 @@ class InsertTableTestCase(unittest.TestCase):
             # in the database as well.
             data_frame = read_csv(csv_file, df_format).drop(['origin'], axis=1)
             self.assertTrue(len(data_frame.index) > 0)
-    
+
             # Load it into the InserTable and test this
             with TemporaryDirectory() as tmp_dir:
                 with LowLevelConnection(1, os.path.join(tmp_dir, 'test.db')) as conn:
@@ -125,10 +127,13 @@ class InsertTableTestCase(unittest.TestCase):
                         database_rows = conn.cursor() \
                             .execute('SELECT count(*) FROM {}.{}'.format(insert_table[0], insert_table[1])).fetchall()[0][0]
 
-                        self.assertEqual(data_frame_size, database_rows, 'not all (or more?) rows written to database')
+                        self.assertEqual(
+                            data_frame_size, database_rows, 'not all (or more?) rows written to database')
 
-        run_test(os.path.join('pynance', 'test_data', 'dkb_cash_sample.csv'), SupportedCsvTypes.DKBCash)
-        run_test(os.path.join('pynance', 'test_data', 'dkb_visa_sample.csv'), SupportedCsvTypes.DKBVisa)
+        run_test(os.path.join('pynance', 'test_data',
+                              'dkb_cash_sample.csv'), SupportedCsvTypes.DKBCash)
+        run_test(os.path.join('pynance', 'test_data',
+                              'dkb_visa_sample.csv'), SupportedCsvTypes.DKBVisa)
 
 
 class StorageTestCase(unittest.TestCase):
@@ -140,7 +145,7 @@ class StorageTestCase(unittest.TestCase):
     def test_validate_dataframe_shape_accepts_aditional_columns(self):
         "Does not compain when aditional columns are present"
         pass
-    
+
     def test_append_dataframe_rejects_invalid_dataframes(self):
         pass
 
@@ -152,7 +157,7 @@ class StorageTestCase(unittest.TestCase):
 
     def test_append_dataframe_duplicats_are_left_out(self):
         pass
-    
+
     def test_load_dataframe_works_with_new_storage_instance(self):
         "implies new conn etc..."
         pass
