@@ -55,7 +55,7 @@ class LowLevelConnection(object):
 
     TABLE_SCHEMA_VERSION = 'schema'
     TABLE_TRANSACTIONS = 'transactions'
-    TABLE_TRANSACTIONS_ID = 'id INTEGER PRIMARY KEY'
+    TABLE_TRANSACTIONS_ID = 'row_key INTEGER PRIMARY KEY'
 
     def _get_db_conn(self):
         """
