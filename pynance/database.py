@@ -55,7 +55,7 @@ class LowLevelConnection(object):
 
     TABLE_SCHEMA_VERSION = 'schema'
     TABLE_TRANSACTIONS = 'transactions'
-    TABLE_TRANSACTIONS_ID = 'row_key INTEGER PRIMARY KEY'
+    ID_COLUMN = 'id'
 
     def _get_db_conn(self):
         """
@@ -87,13 +87,14 @@ class LowLevelConnection(object):
                     LowLevelConnection.TABLE_SCHEMA_VERSION))
 
             if not exists_table(connection, LowLevelConnection.TABLE_TRANSACTIONS):
-                connection.execute('CREATE TABLE IF NOT EXISTS {} ({}, {})'.format(
+                connection.execute('CREATE TABLE IF NOT EXISTS {} ({})'.format(
                     LowLevelConnection.TABLE_TRANSACTIONS,
-                    LowLevelConnection.TABLE_TRANSACTIONS_ID,
                     generate_sqlite_columns_definitions()
                 ))
                 connection.execute('CREATE INDEX date_index ON {} ({})'.format(
                     LowLevelConnection.TABLE_TRANSACTIONS, 'date'))
+                connection.execute('CREATE INDEX id ON {} ({})'.format(
+                    LowLevelConnection.TABLE_TRANSACTIONS, LowLevelConnection.ID_COLUMN))
 
     def __enter__(self):
         self.conn = self._get_db_conn()
@@ -163,10 +164,10 @@ class Storage(object):
     @classmethod
     def validate_dataframe_shape(cls, data_frame):
         """
-        asserts that the correct columns are present. 
+        asserts that the correct columns are present.
         Tolerates that additional columns are present
         """
-        pass
+        return True
 
     def append_dataframe(self, data_frame):
         """
@@ -180,10 +181,21 @@ class Storage(object):
             with InsertTable(conn, data_frame) as insert_table:
                 # add existing data to insert_table
                 with conn:
-                    conn.cursor().execute('INSERT INTO %s ')
+                    column_keys = COLUMNS.keys()
+                    columns_str = ','.join(column_keys)
+                    conn.cursor().execute(
+                        '''
+                        INSERT INTO %s
+                        SELECT %s
+                        FROM %s
+                        ON CONFLICT (%s) DO NOTHING
+                        ''' % (insert_table,
+                               columns_str,
+                               LowLevelConnection.TABLE_TRANSACTIONS,
+                               LowLevelConnection.ID_COLUMN))
+                conn.close()
                 # but only non-duplicates
                 # replace existing table by insert_table
-                pass
 
     def load_dataframe(self):
         """
