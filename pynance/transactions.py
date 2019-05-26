@@ -2,13 +2,17 @@
 Contains transaction test strategies.
 """
 
-import hypothesis.strategies as st 
+import hypothesis.strategies as st
 import datetime
 import pandas as pd
 import numpy as np
 
+from .dataframe_util import create_id_hash
+
 KNOWN_CURRENCIES = ['EUR', 'USD']
-ALPHABET = list(map(str, 'abcdefghijklmnopqrstuvwzyz ABCDEFGHIJKLMNOPQRSTUVWZYZ0123456789äüöß'))
+ALPHABET = list(
+    map(str, 'abcdefghijklmnopqrstuvwzyz ABCDEFGHIJKLMNOPQRSTUVWZYZ0123456789äüöß'))
+
 
 @st.composite
 def single_transaction(draw, min_date=None, max_date=None):
@@ -23,21 +27,22 @@ def single_transaction(draw, min_date=None, max_date=None):
 
     return (d, text, text, text, floats, floats, currency, text, text, text)
 
+
 @st.composite
 def dataframe(draw, min_size=0, max_size=None, min_date=None, max_date=None):
     if not min_date:
-        min_date = datetime.date(1000,1,1)
+        min_date = datetime.date(1000, 1, 1)
     if not max_date:
-        max_date = datetime.date(9999,12,31)
+        max_date = datetime.date(9999, 12, 31)
 
     elements = draw(st.lists(
         single_transaction(min_date=min_date, max_date=max_date),
-         min_size=min_size,
-         max_size=max_size
+        min_size=min_size,
+        max_size=max_size
     ))
 
     dates, sender_accounts, receiver_accounts, texts, amounts, total_balances, currencies, \
-        categories, tagss, origins = [],[],[],[],[],[],[],[],[],[]
+        categories, tagss, origins = [], [], [], [], [], [], [], [], [], []
 
     for date, sender_account, receiver_account, text, amount, total_balance, currency, category, tags, origin in elements:
         dates.append(date)
@@ -51,8 +56,7 @@ def dataframe(draw, min_size=0, max_size=None, min_date=None, max_date=None):
         tagss.append(tags)
         origins.append(origin)
 
-
-    return pd.DataFrame({
+    result_frame = pd.DataFrame({
         'date': dates,
         'sender_account': sender_accounts,
         'receiver_account': receiver_accounts,
@@ -62,4 +66,10 @@ def dataframe(draw, min_size=0, max_size=None, min_date=None, max_date=None):
         'currency': currencies,
         'category': categories,
         'tags': tagss,
-        'origin': origins })
+        'origin': origins})
+
+    hash_column = create_id_hash(result_frame)
+
+    result_frame['id'] = hash_column
+
+    return result_frame
