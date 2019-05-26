@@ -32,7 +32,7 @@ class DashTestCase(unittest.TestCase):
 
         for expected, selected in zip(onselect_response, dropdown_values):
             response = onselect_csvtype(selected)
-            response_dict = json.loads(response.data.decode())
+            response_dict = json.loads(response)  # .data.decode())
             is_enabled = not response_dict["response"]["props"]["disabled"]
 
             self.assertEqual(expected, is_enabled)
@@ -140,7 +140,7 @@ class DashTestCase(unittest.TestCase):
         bytestr = self._read_sample_file_like_uploaded()
 
         response = update_output(bytestr, "DKBCash")
-        response_dict = json.loads(response.data.decode())
+        response_dict = json.loads(response)  # .data.decode())
 
         res_charts = response_dict["response"]["props"]["figure"]["data"]
 

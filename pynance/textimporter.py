@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 
 from .definitions import COLUMNS
+from .dataframe_util import create_id_hash
 
 
 def read_csv(filepath_or_buffer, description):
@@ -81,7 +82,7 @@ def read_csv(filepath_or_buffer, description):
     amounts = new_df['amount'].values
     new_df['total_balance'] = amounts_to_balances(amounts,
                                                   final_total_balance)
-
+    new_df['id'] = create_id_hash(new_df)
     return new_df
 
 
