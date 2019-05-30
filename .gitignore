@@ -8,3 +8,5 @@ pynance/*.pyc
 .pytest_cache
 /.hypothesis
 .coverage
+/.local_test_data
+test_local.py

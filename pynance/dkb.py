@@ -38,6 +38,10 @@ class DKBFormatters():
             return float(numberstring.replace(".", "").replace(",", "."))
 
     @classmethod
+    def to_float64_VISA_header(cls, numberstring):
+        return float(numberstring)
+
+    @classmethod
     def formatter_map(cls):
         return {
             np.datetime64: cls.to_datetime64,
@@ -75,7 +79,8 @@ class SupportedCsvTypes():
         skiprows=6,
         encoding="iso-8859-1",
         total_balance_re_pattern=r'(?<=Kontostand vom \d{2}.\d{2}.\d{4}:";")'
-                                 r'(\d+,\d+)')
+                                 r'(.*)(?= EUR";)',
+        total_balance_formatter=DKBFormatters.to_float64)
 
     DKBVisa = CsvFileDescription(
         column_map={
@@ -87,4 +92,5 @@ class SupportedCsvTypes():
         formatters=DKBFormatters.formatter_map(),
         skiprows=6,
         encoding="iso-8859-1",
-        total_balance_re_pattern=r'(?<=Saldo:";")(\d+,\d+)')
+        total_balance_re_pattern=r'(?<=Saldo:";")(.*)(?= EUR";)',
+        total_balance_formatter=DKBFormatters.to_float64_VISA_header)

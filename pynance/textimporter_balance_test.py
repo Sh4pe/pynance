@@ -39,21 +39,25 @@ class CsvBalanceImportTestCase(unittest.TestCase):
         after the last transaction of that file
         """
         dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
-        final_balance_dkbcash = 248.54
+        final_balance_dkbcash = 1248.54
 
         dkb_visa_sample_df = self.read_dummy_file_dkbvisa_small()
         final_balance_dkbvisa = 465.33
 
         # check if the balance at the end is equal to the value
         # given in the header
+        # the first value in the df is the latest, i.e. the final row
         self.assertEqual(final_balance_dkbcash,
-                         dkb_cash_sample_df['total_balance'].iloc[-1])
+                         dkb_cash_sample_df['total_balance'].iloc[0])
         self.assertEqual(final_balance_dkbvisa,
-                         dkb_visa_sample_df['total_balance'].iloc[-1])
+                         dkb_visa_sample_df['total_balance'].iloc[0])
 
     def test_read_all_balance_dkbcash(self):
         dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
-        balances_dkbcash = [138.54, 258.54, 248.54]
+
+        # final 1248.54
+        # amounts: -12.16, 120, -10
+        balances_dkbcash = [1248.54, 1260.70, 1140.70]
 
         assert_array_almost_equal(balances_dkbcash,
                                   dkb_cash_sample_df['total_balance'].tolist())
@@ -67,7 +71,7 @@ class CsvBalanceImportTestCase(unittest.TestCase):
             balances = df['total_balance'].tolist()
 
             for i in range(len(amounts)-1):
-                assert_almost_equal(balances[i+1], balances[i]+amounts[i+1])
+                assert_almost_equal(balances[i], balances[i+1]+amounts[i])
 
     def test_dkbcash_balance_regex_match(self):
         dummyfile_dkbcash_small = os.path.join("pynance",
@@ -75,11 +79,18 @@ class CsvBalanceImportTestCase(unittest.TestCase):
                                                "dkb_cash_sample.csv")
 
         csv_desc = SupportedCsvTypes.DKBCash
-        expected_balance = 248.54
+        expected_balance = 1248.54
 
         balance = csv_desc.read_total_balance(dummyfile_dkbcash_small)
 
         self.assertEqual(expected_balance, balance)
+
+    def test_dkbcash_final_balance(self):
+        dkb_cash_sample_df = self.read_dummy_file_dkbcash_small()
+        final_balance = dkb_cash_sample_df["total_balance"].tolist()[0]
+        expected_balance = 1248.54
+
+        self.assertEqual(expected_balance, final_balance)
 
     def test_dkbvisa_balance_regex_match(self):
         dummyfile_dkbvisa_small = os.path.join("pynance",
@@ -100,7 +111,7 @@ class CsvBalanceImportTestCase(unittest.TestCase):
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
-            "Saldo:";"465,33 EUR";
+            "Saldo:";"465.33 EUR";
             "Datum:";"28.01.2019";
 
             "Umsatz abgerechnet und nicht im Saldo enthalte
@@ -117,7 +128,7 @@ class CsvBalanceImportTestCase(unittest.TestCase):
             "Kreditkarte:";"3546********6546";
 
             "Zeitraum:";"letzten 60 Tage";
-            "BALANCE:";"465,33 EUR";
+            "BALANCE:";"465.33 EUR";
             "Datum:";"28.01.2019";
 
             "Umsatz abgerechnet und nicht im Saldo enthalte
@@ -130,23 +141,31 @@ class CsvBalanceImportTestCase(unittest.TestCase):
         self.assertRaises(UnsupportedCsvFormatException, parse_invald_header)
 
     def test_amounts_to_balances1(self):
-        amounts = np.array([-12.23, 9.00, 453.23, -232.32])
-        final_balance = 221.32
-        expected_balances = np.array([-8.59, 0.41, 453.64, 221.32])
+        amounts = np.array([1.0, 1.0, 1.0, 1.0])
+        final_balance = 4.0
+        expected_balances = np.array([4.0, 3.0, 2.0, 1.0])
 
         balances = amounts_to_balances(amounts, final_balance)
         assert_array_almost_equal(expected_balances, balances)
 
     def test_amounts_to_balances2(self):
+        amounts = np.array([-12.23, 9.00, 453.23, -232.32])
+        final_balance = 221.32
+        expected_balances = np.array([221.32, 233.55, 224.55, -228.68])
+
+        balances = amounts_to_balances(amounts, final_balance)
+        assert_array_almost_equal(expected_balances, balances)
+
+    def test_amounts_to_balances3(self):
         np.random.seed(0)
         amounts = np.random.random(100)*1000 - np.random.randint(300, 500)
         final_balance = np.random.random()*10000
         balances = amounts_to_balances(amounts, final_balance)
 
         for i in range(len(amounts)-1):
-            assert_almost_equal(balances[i+1], balances[i]+amounts[i+1])
+            assert_almost_equal(balances[i], balances[i+1]+amounts[i])
 
-        self.assertEqual(balances[-1], final_balance)
+        self.assertEqual(balances[0], final_balance)
 
 
 def test_suite():

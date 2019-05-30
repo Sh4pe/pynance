@@ -62,7 +62,15 @@ app.layout = html.Div([
             data=[],
         ),
         style={'height': 500},
-        id='my-graph'
+        id='graph_bar'
+    ),
+
+    dcc.Graph(
+        figure=go.Figure(
+            data=[],
+        ),
+        style={'height': 500},
+        id='graph_line'
     )
 ])
 
@@ -144,10 +152,35 @@ def make_cashflow_figure(df):
     return fig
 
 
-@app.callback(Output('my-graph', 'figure'),
+def make_line_figure(df):
+    """
+    Take a transactions dataframe and make a figure out of it, which
+    shows the total balance as a function of time
+
+    Params:
+    -------
+    df: pandas.Dataframe
+        Dataframe which must have the columns date and total_balance
+
+    Returns:
+    --------
+    plotly.graph_objs.Figure
+        Figure with the visualized data
+    """
+
+    lineplot = go.Scatter(x=df["date"],
+                          y=df["total_balance"])
+
+    fig = go.Figure(
+        data=[lineplot]
+    )
+    return fig
+
+
+@app.callback(Output('graph_bar', 'figure'),
               [Input('uploader', 'contents')],
               [State('csvtype', 'data')])
-def update_output(content, csvtype_str):
+def update_bar_chart(content, csvtype_str):
     """
     Visualizes the raw data content of a file as a time-amount bar graph
 
@@ -162,11 +195,38 @@ def update_output(content, csvtype_str):
     Returns:
     --------
     Figure:
-        Bar chart figure, with time on x and amount on y
+        Bar chart figure, with time on x and total balance on y
     """
     if content is not None:
         df = parse_contents(content, csvtype_str)
         return make_cashflow_figure(df)
+    else:
+        return go.Figure(data=[])
+
+
+@app.callback(Output('graph_line', 'figure'),
+              [Input('uploader', 'contents')],
+              [State('csvtype', 'data')])
+def update_line(content, csvtype_str):
+    """
+    Visualizes the raw data content of a file as a time-amount line graph
+
+    Params:
+    -------
+    content: byte-like
+        undecoded csv file content
+    csvtype_str: str
+        name of a supported csv type, should be name of the attribute of
+        SupportedCsvTypes
+
+    Returns:
+    --------
+    Figure:
+        Line figure, with time on x and amount on y
+    """
+    if content is not None:
+        df = parse_contents(content, csvtype_str)
+        return make_line_figure(df)
     else:
         return go.Figure(data=[])
 
